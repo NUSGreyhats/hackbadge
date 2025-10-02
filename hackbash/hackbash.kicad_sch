@@ -953,139 +953,6 @@
 				)
 			)
 		)
-		(symbol "Switch:SW_SPST"
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at 0 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "SW_SPST"
-				(at 0 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Single Pole Single Throw (SPST) switch"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "switch lever"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "SW_SPST_0_0"
-				(circle
-					(center -2.032 0)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.524 0.254) (xy 1.524 1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 2.032 0)
-					(radius 0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "SW_SPST_1_1"
-				(pin passive line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "easyeda2kicad:C70373"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2587,6 +2454,12 @@
 		(uuid "3029a79b-8b3a-43db-9fb8-c2d34b1ad47d")
 	)
 	(junction
+		(at 115.57 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "34e429ae-972f-45f2-a13e-12053f9860d9")
+	)
+	(junction
 		(at 45.72 133.35)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2603,6 +2476,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6dc997ab-8b57-4d4d-a099-afa7b347f6f8")
+	)
+	(junction
+		(at 128.27 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6ed628ba-3689-40a1-bf15-f8e55c2af48e")
 	)
 	(junction
 		(at 184.15 92.71)
@@ -2766,6 +2645,16 @@
 	)
 	(wire
 		(pts
+			(xy 111.76 78.74) (xy 115.57 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2612ecf5-e0ec-4e1d-87a6-991c6d614713")
+	)
+	(wire
+		(pts
 			(xy 66.04 50.8) (xy 62.23 50.8)
 		)
 		(stroke
@@ -2863,6 +2752,16 @@
 			(type default)
 		)
 		(uuid "455bb6d3-c712-4616-8ead-27c4ab85f697")
+	)
+	(wire
+		(pts
+			(xy 128.27 83.82) (xy 128.27 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4a192a77-dd67-4663-a500-18401a9f7f88")
 	)
 	(wire
 		(pts
@@ -2976,7 +2875,7 @@
 	)
 	(wire
 		(pts
-			(xy 125.73 78.74) (xy 130.81 78.74)
+			(xy 125.73 78.74) (xy 128.27 78.74)
 		)
 		(stroke
 			(width 0)
@@ -3013,16 +2912,6 @@
 			(type default)
 		)
 		(uuid "7ff3e322-f811-45d3-a717-0bfe9514193a")
-	)
-	(wire
-		(pts
-			(xy 88.9 43.18) (xy 91.44 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "83b50177-e15b-4e3c-9c02-f7bd58ce9800")
 	)
 	(wire
 		(pts
@@ -3166,6 +3055,16 @@
 	)
 	(wire
 		(pts
+			(xy 123.19 83.82) (xy 128.27 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aec009a6-c43a-4a71-b304-db1bec57e744")
+	)
+	(wire
+		(pts
 			(xy 24.13 102.87) (xy 25.4 102.87)
 		)
 		(stroke
@@ -3183,6 +3082,16 @@
 			(type default)
 		)
 		(uuid "af49a93a-bc74-48ef-98ba-7c744bfbb38e")
+	)
+	(wire
+		(pts
+			(xy 115.57 78.74) (xy 115.57 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b39222f8-72e6-4f3c-8f46-b4a51d24caeb")
 	)
 	(wire
 		(pts
@@ -3223,6 +3132,16 @@
 			(type default)
 		)
 		(uuid "bc786dce-c877-46ef-994a-6ae8f94dae04")
+	)
+	(wire
+		(pts
+			(xy 128.27 78.74) (xy 130.81 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c71ff5cc-293d-4a0f-9838-e14a7f2dedf5")
 	)
 	(wire
 		(pts
@@ -3356,7 +3275,7 @@
 	)
 	(wire
 		(pts
-			(xy 72.39 43.18) (xy 78.74 43.18)
+			(xy 72.39 43.18) (xy 91.44 43.18)
 		)
 		(stroke
 			(width 0)
@@ -4713,6 +4632,73 @@
 			(project "hackbash"
 				(path "/493fb671-8fd8-4210-a71a-e0d8ca1f5c65"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 119.38 83.82 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0ef5295f-1e67-4e1d-8a65-a07ccbc35187")
+		(property "Reference" "C4"
+			(at 119.38 88.392 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10uF"
+			(at 119.38 91.186 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 123.19 82.8548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 119.38 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 119.38 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "85d44533-9bee-46d0-8120-a9809c36c00d")
+		)
+		(pin "2"
+			(uuid "1cc75296-e8b4-45d7-a48a-e5d7dd7795ec")
+		)
+		(instances
+			(project "hackbash"
+				(path "/493fb671-8fd8-4210-a71a-e0d8ca1f5c65"
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -6092,7 +6078,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 115.57 78.74 270)
+		(at 111.76 78.74 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6101,7 +6087,7 @@
 		(fields_autoplaced yes)
 		(uuid "5e20328b-056a-4189-a83e-ab0d70c8b18c")
 		(property "Reference" "#PWR013"
-			(at 109.22 78.74 0)
+			(at 105.41 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6110,7 +6096,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 111.76 78.7399 90)
+			(at 107.95 78.7399 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6119,7 +6105,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 115.57 78.74 0)
+			(at 111.76 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6128,7 +6114,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 115.57 78.74 0)
+			(at 111.76 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6137,7 +6123,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 115.57 78.74 0)
+			(at 111.76 78.74 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8045,74 +8031,6 @@
 			(project "hackbash"
 				(path "/493fb671-8fd8-4210-a71a-e0d8ca1f5c65"
 					(reference "#PWR06")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Switch:SW_SPST")
-		(at 83.82 43.18 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d38b4334-8acf-4ba8-92bb-d68369c928c6")
-		(property "Reference" "SW5"
-			(at 83.82 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SW_SPST"
-			(at 83.82 39.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 83.82 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 83.82 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Single Pole Single Throw (SPST) switch"
-			(at 83.82 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1fdbd580-c3b5-4e55-823e-5ba9161f2818")
-		)
-		(pin "2"
-			(uuid "40e410b0-10f9-449a-a64a-7e3130b8977d")
-		)
-		(instances
-			(project ""
-				(path "/493fb671-8fd8-4210-a71a-e0d8ca1f5c65"
-					(reference "SW5")
 					(unit 1)
 				)
 			)
