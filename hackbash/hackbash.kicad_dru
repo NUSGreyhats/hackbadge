@@ -1,0 +1,6 @@
+(version 1)
+
+(rule "USB_hole_clearance"
+   (condition "A.Reference == 'USB2'")
+   (constraint hole_clearance (min 8mil))
+)
