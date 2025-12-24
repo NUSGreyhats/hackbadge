@@ -6,101 +6,112 @@
  #include "ch32fun.h"
  #include <stdio.h>
  
+// LED pins for raw value display
+#define LED_PURPLE   PD3 // T2C2 or T1C4 -> T2C2
+#define LED_RED      PD2 // T1C1 or T2C3 -> T2C3
+#define LED_ORANGE   PC7 // T1C2 or T2C2 -> T1C2
+#define LED_YELLOW   PC6 // T1C13N ---> T1C1
+#define LED_GREEN    PC5 // T1C3_
+#define LED_BLUE     PC4 // T1C4 or T1C12N
+
+#define BTN_RIGHT    PD0
+#define BTN_LEFT     PC2
+
  /*
   * initialize TIM1 for PWM
   */
- void t1pwm_init( void )
- {
-     // Enable GPIOC, GPIOD and TIM1
-     RCC->APB2PCENR |= 	RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC |
+void t1pwm_init( void )
+{
+    // Enable GPIOC, GPIOD and TIM1
+    RCC->APB2PCENR |= 	RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC |
                          RCC_APB2Periph_TIM1;
+    
+    // PC4 is T1CH4, 10MHz Output alt func, push-pull
+    funPinMode( PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode( PC6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode( PC5, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode( PC4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode( PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+
+    // Reset TIM1 to init all regs
+    RCC->APB2PRSTR |= RCC_APB2Periph_TIM1;
+    RCC->APB2PRSTR &= ~RCC_APB2Periph_TIM1;
      
-     // PD0 is T1CH1N, 10MHz Output alt func, push-pull
-     GPIOD->CFGLR &= ~(0xf<<(4*0));
-     GPIOD->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF)<<(4*0);
+    // CTLR1: default is up, events generated, edge align
+    // SMCFGR: default clk input is CK_INT
+
+    TIM1->PSC = 0x0000;     // Prescaler 
+    TIM1->ATRLR = 255;      // Auto Reload - sets period
+    TIM1->SWEVGR |= TIM_UG; // Reload immediately
      
-     // PC4 is T1CH4, 10MHz Output alt func, push-pull
-     GPIOC->CFGLR &= ~(0xf<<(4*4));
-     GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF)<<(4*4);
-         
-     // Reset TIM1 to init all regs
-     RCC->APB2PRSTR |= RCC_APB2Periph_TIM1;
-     RCC->APB2PRSTR &= ~RCC_APB2Periph_TIM1;
-     
-     // CTLR1: default is up, events generated, edge align
-     // SMCFGR: default clk input is CK_INT
-     
-     // Prescaler 
-     TIM1->PSC = 0x0000;
-     
-     // Auto Reload - sets period
-     TIM1->ATRLR = 255;
-     
-     // Reload immediately
-     TIM1->SWEVGR |= TIM_UG;
-     
-     // Enable CH1N output, positive pol
-     TIM1->CCER |= TIM_CC1NE | TIM_CC1NP;
+    // Enable CH1N output, positive pol
+    //  TIM1->CCER |= TIM_CC1NE | TIM_CC1NP;
      
      // Enable CH4 output, positive pol
-     TIM1->CCER |= TIM_CC4E | TIM_CC4P;
+    TIM1->CCER |= TIM_CC1E | TIM_CC1P;
+    TIM1->CCER |= TIM_CC2E | TIM_CC2P;
+    TIM1->CCER |= TIM_CC3E | TIM_CC3P;
+    TIM1->CCER |= TIM_CC4E | TIM_CC4P;
      
-     // CH1 Mode is output, PWM1 (CC1S = 00, OC1M = 110)
-     TIM1->CHCTLR1 |= TIM_OC1M_2 | TIM_OC1M_1;
+    // CH1 Mode is output, PWM1 (CC1S = 00, OC1M = 110)
+    TIM1->CHCTLR1 |= TIM_OC1M_2 | TIM_OC1M_1;
+    TIM1->CHCTLR1 |= TIM_OC2M_2 | TIM_OC2M_1;
+    // CH2 Mode is output, PWM1 (CC1S = 00, OC1M = 110)
+    TIM1->CHCTLR2 |= TIM_OC3M_2 | TIM_OC3M_1;
+    TIM1->CHCTLR2 |= TIM_OC4M_2 | TIM_OC4M_1;
      
-     // CH2 Mode is output, PWM1 (CC1S = 00, OC1M = 110)
-     TIM1->CHCTLR2 |= TIM_OC4M_2 | TIM_OC4M_1;
+    // Set the Capture Compare Register value to 50% initially
+    TIM1->CH1CVR = 128;
+    TIM1->CH2CVR = 128;
+    TIM1->CH3CVR = 128;
+    TIM1->CH4CVR = 128;
      
-     // Set the Capture Compare Register value to 50% initially
-     TIM1->CH1CVR = 128;
-     TIM1->CH4CVR = 128;
+    // Enable TIM1 outputs
+    TIM1->BDTR |= TIM_MOE;
      
-     // Enable TIM1 outputs
-     TIM1->BDTR |= TIM_MOE;
-     
-     // Enable TIM1
-     TIM1->CTLR1 |= TIM_CEN;
- }
+    // Enable TIM1
+    TIM1->CTLR1 |= TIM_CEN;
+}
  
- /*
-  * set timer channel PW
-  */
- void t1pwm_setpw(uint8_t chl, uint16_t width)
- {
-     switch(chl&3)
-     {
-         case 0: TIM1->CH1CVR = width; break;
-         case 1: TIM1->CH2CVR = width; break;
-         case 2: TIM1->CH3CVR = width; break;
-         case 3: TIM1->CH4CVR = width; break;
-     }
- }
+/*
+* set timer channel PW
+*/
+void t1pwm_setpw(uint8_t chl, uint16_t width)
+{
+    switch(chl&3)
+    {
+        case 0: TIM1->CH1CVR = width; break;
+        case 1: TIM1->CH2CVR = width; break;
+        case 2: TIM1->CH3CVR = width; break;
+        case 3: TIM1->CH4CVR = width; break;
+    }
+}
  
- /*
-  * force output (used for testing / debug)
-  */
- void t1pwm_force(uint8_t chl, uint8_t val)
- {
-     uint16_t temp;
-     
-     chl &= 3;
-     
-     if(chl < 2)
-     {
-         temp = TIM1->CHCTLR1;
-         temp &= ~(TIM_OC1M<<(8*chl));
-         temp |= (TIM_OC1M_2 | (val?TIM_OC1M_0:0))<<(8*chl);
-         TIM1->CHCTLR1 = temp;
-     }
-     else
-     {
-         chl &= 1;
-         temp = TIM1->CHCTLR2;
-         temp &= ~(TIM_OC1M<<(8*chl));
-         temp |= (TIM_OC1M_2 | (val?TIM_OC1M_0:0))<<(8*chl);
-         TIM1->CHCTLR2 = temp;
-     }
- }
+/*
+* force output (used for testing / debug)
+*/
+void t1pwm_force(uint8_t chl, uint8_t val)
+{
+    uint16_t temp;
+    
+    chl &= 3;
+    
+    if(chl < 2)
+    {
+        temp = TIM1->CHCTLR1;
+        temp &= ~(TIM_OC1M<<(8*chl));
+        temp |= (TIM_OC1M_2 | (val?TIM_OC1M_0:0))<<(8*chl);
+        TIM1->CHCTLR1 = temp;
+    }
+    else
+    {
+        chl &= 1;
+        temp = TIM1->CHCTLR2;
+        temp &= ~(TIM_OC1M<<(8*chl));
+        temp |= (TIM_OC1M_2 | (val?TIM_OC1M_0:0))<<(8*chl);
+        TIM1->CHCTLR2 = temp;
+    }
+}
  
  /*
   * entry
@@ -120,13 +131,18 @@
      printf("done.\n\r");
          
      printf("looping...\n\r");
-     
+
+
+    count = 8;
+
      while(1)
      {
          t1pwm_setpw(0, count); // Chl 1
-         t1pwm_setpw(3, (count + 128)&255);	// Chl 4
-         count++;
-         count &= 255;
+         t1pwm_setpw(1, count); // Chl 1
+         t1pwm_setpw(2, count); // Chl 1
+         t1pwm_setpw(3, count);	// Chl 4
+         // count++;
+         // count &= 255;
          Delay_Ms( 5 );
      }
  }
