@@ -7,12 +7,14 @@
  #include <stdio.h>
  
 // LED pins for raw value display
-#define LED_PURPLE   PD3 // T2C2 or T1C4 -> T2C2
-#define LED_RED      PD2 // T1C1 or T2C3 -> T2C3
-#define LED_ORANGE   PC7 // T1C2 or T2C2 -> T1C2
-#define LED_YELLOW   PC6 // T1C13N ---> T1C1
-#define LED_GREEN    PC5 // T1C3_
-#define LED_BLUE     PC4 // T1C4 or T1C12N
+#define LED_PURPLE   PD3 //        T1CH4_1                          T2CH2, T2CH2_2/
+#define LED_RED      PD2 //                   T1CH1_2   T1CH2N_3,          T2CH3_1
+#define LED_ORANGE   PC7 //        T1CH2_1              T1CH2_3            T2CH2_3  
+#define LED_YELLOW   PC6 //        T1CH1_1,             T1CH3N_3 
+#define LED_GREEN    PC5 //                             T1CH3_3      T1ETR, T2CH1ETR(1)_1,
+#define LED_BLUE     PC4 // T1CH4, T1CH2N_1 / T1CH4_2 / T1CH1_3
+
+#define funPinModeClear(pin, no) { GpioOf(pin)->CFGLR &= ~((GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF)<<(4*no)); }
 
 #define BTN_RIGHT    PD0
 #define BTN_LEFT     PC2
@@ -81,7 +83,8 @@ void t1pwm_init( void )
     TIM1->CCER |= TIM_CC2E | TIM_CC2P;
     TIM1->CCER |= TIM_CC3E | TIM_CC3P;
     TIM1->CCER |= TIM_CC4E | TIM_CC4P;
-     
+
+    
     // CH1 Mode is output, PWM1 (CC1S = 00, OC1M = 110)
     TIM1->CHCTLR1 |= TIM_OC1M_2 | TIM_OC1M_1;
     TIM1->CHCTLR1 |= TIM_OC2M_2 | TIM_OC2M_1;
@@ -90,10 +93,15 @@ void t1pwm_init( void )
     TIM1->CHCTLR2 |= TIM_OC4M_2 | TIM_OC4M_1;
      
     // Set the Capture Compare Register value to 50% initially
-    TIM1->CH1CVR = 128;
-    TIM1->CH2CVR = 128;
-    TIM1->CH3CVR = 128;
-    TIM1->CH4CVR = 128;
+    // TIM1->CH1CVR = 128;
+    // TIM1->CH2CVR = 128;
+    // TIM1->CH3CVR = 128;
+    // TIM1->CH4CVR = 128;
+    TIM1->CH1CVR = 0;
+    TIM1->CH2CVR = 0;
+    TIM1->CH3CVR = 0;
+    TIM1->CH4CVR = 0;
+     
      
     // Enable TIM1 outputs
     TIM1->BDTR |= TIM_MOE;
@@ -195,6 +203,11 @@ void t2pwm_init( void )
     TIM2->CCER |= TIM_CC3E | (TIM_CC3P & TIM2_DEFAULT);
 	TIM2->CCER |= TIM_CC4E | (TIM_CC4P & TIM2_DEFAULT);
 
+    TIM2->CH1CVR = 0;
+    TIM2->CH2CVR = 0;
+    TIM2->CH3CVR = 0;
+    TIM2->CH4CVR = 0;
+
 	// initialize counter
 	TIM2->SWEVGR |= TIM_UG;
 
@@ -220,6 +233,68 @@ void t2pwm_setpw(uint8_t chl, uint16_t width)
 
   
 
+void clear(int val){
+    for (int i=0; i<4; i++){
+        t1pwm_setpw(i, val); 
+        t2pwm_setpw(i, val); 
+    }
+}
+
+ 
+// LED pins for raw value display
+#define LED_PURPLE   PD3 //        T1CH4_1                          T2CH2, T2CH2_2/
+#define LED_RED      PD2 //                   T1CH1_2   T1CH2N_3,          T2CH3_1
+#define LED_ORANGE   PC7 //        T1CH2_1              T1CH2_3            T2CH2_3  
+#define LED_YELLOW   PC6 //        T1CH1_1,             T1CH3N_3 
+#define LED_GREEN    PC5 //                             T1CH3_3      T1ETR, T2CH1ETR(1)_1,
+#define LED_BLUE     PC4 // T1CH4, T1CH2N_1 / T1CH4_2 / T1CH1_3
+
+void displayLEDPWM(int purple, int red, int orange, int yellow, int green, int blue){
+    // Purple
+    Delay_Ms( 1000 );
+    clear(0);
+    funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode(PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode(PC6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+
+    AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_FULLREMAP; 
+    t1pwm_setpw(0, red); 
+    t2pwm_setpw(1, purple); 
+    t1pwm_setpw(3, blue);
+
+
+    // Change
+    Delay_Ms( 1000 );
+    clear(0);
+    funPinModeClear(PC4, 4);
+    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
+    t1pwm_setpw(0, yellow);
+    t1pwm_setpw(1, orange); // linked to blue?
+    
+    
+    // Delay_Ms( 1000 );
+    // clear(0);
+    // funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    // AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
+    // AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
+    // t1pwm_setpw(0, red); 
+    // t2pwm_setpw(1, purple); 
+    // t1pwm_setpw(3, blue);
+
+    Delay_Ms( 1000 );
+    clear(0);
+    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
+    funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinModeClear(PD2, 2);
+    funPinModeClear(PC7, 7);
+    funPinModeClear(PC6, 6);
+    // t1pwm_setpw(0, green);
+    // t1pwm_setpw(1, green);
+    t1pwm_setpw(2, green);
+    // t1pwm_setpw(3, green);
+
+}
+
 
  /*
   * entry
@@ -243,26 +318,9 @@ void t2pwm_setpw(uint8_t chl, uint16_t width)
 
 
     count = 8;
-    // ToggleRemap();
-    TIM1Remap();
-     while(1)
-     {
-        // Mode 1
-        t2pwm_setpw(1, count); // Purple (1), Orange(2)
-        t1pwm_setpw(0, count); // Red
-        t1pwm_setpw(3, count); // Blue
 
-         
-        t1pwm_setpw(1, count); // Chl 1
-        t1pwm_setpw(2, count); // Chl 1
-         
-        //  t2pwm_setpw(0, count); // Chl 1
-        //  t2pwm_setpw(1, count); // Chl 1
-          // Chl 1
-        //  t2pwm_setpw(3, count);	// Chl 4
-        
-         // count++;
-         // count &= 255;
-         Delay_Ms( 5 );
+    while(1)
+     {
+        displayLEDPWM(count, count, count, count, count, count);
      }
  }
