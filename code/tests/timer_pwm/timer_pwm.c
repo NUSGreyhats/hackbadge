@@ -17,13 +17,36 @@
 #define BTN_RIGHT    PD0
 #define BTN_LEFT     PC2
 
+// Mapping Timer 1
+void TIM1Remap(void) {
+	if(AFIO->PCFR1 & AFIO_PCFR1_TIM1_REMAP_FULLREMAP) {
+		AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_FULLREMAP;   //clear remapping bits
+		printf("Standard Mapping!\r\n");
+	}
+	else {
+		AFIO->PCFR1 |= AFIO_PCFR1_TIM1_REMAP_FULLREMAP; //set fullremap mode
+		printf("Full Remapping!\r\n");
+	}
+};
+
+// Mapping Timer 2
+void TIM2Remap(void) {
+	if(AFIO->PCFR1 & AFIO_PCFR1_TIM2_REMAP_FULLREMAP) {
+		AFIO->PCFR1 &= ~AFIO_PCFR1_TIM2_REMAP_FULLREMAP;   //clear remapping bits
+		printf("Standard Mapping!\r\n");
+	}
+	else {
+		AFIO->PCFR1 |= AFIO_PCFR1_TIM2_REMAP_FULLREMAP; //set fullremap mode
+		printf("Full Remapping!\r\n");
+	}
+};
  /*
   * initialize TIM1 for PWM
   */
 void t1pwm_init( void )
 {
     // Enable GPIOC, GPIOD and TIM1
-    RCC->APB2PCENR |= 	RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC |
+    RCC->APB2PCENR |= 	RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC |
                          RCC_APB2Periph_TIM1;
     
     // PC4 is T1CH4, 10MHz Output alt func, push-pull
@@ -35,7 +58,8 @@ void t1pwm_init( void )
     funPinMode( PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
 
     // Remap Register
-    AFIO->PCFR1 = AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
+    // AFIO->PCFR1 |= AFIO_PCFR1_TIM1_REMAP_FULLREMAP;
+    // AFIO->PCFR1 |= AFIO_PCFR1_TIM1_REMAP_FULLREMAP;
 
 
     // Reset TIM1 to init all regs
@@ -219,10 +243,12 @@ void t2pwm_setpw(uint8_t chl, uint16_t width)
 
 
     count = 8;
-
+    // ToggleRemap();
+    TIM1Remap();
      while(1)
      {
-        t2pwm_setpw(1, count); // Purple
+        // Mode 1
+        t2pwm_setpw(1, count); // Purple (1), Orange(2)
         t1pwm_setpw(0, count); // Red
         t1pwm_setpw(3, count); // Blue
 
