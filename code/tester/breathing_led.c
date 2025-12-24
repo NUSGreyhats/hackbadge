@@ -23,8 +23,8 @@ volatile uint16_t adc_buffer[ADC_NUMCHLS];
 #define LED_ORANGE   PC7
 #define LED_RED      PD2
 
-#define BTN2         PD0
-#define BTN1         PD1
+#define BTN_RIGHT    PD0
+#define BTN_LEFT     PC2
   
 int main(void)
 {
@@ -62,6 +62,12 @@ int main(void)
         
         Delay_Ms(200);
 
-        counter = (counter + 1) % 6;
+        if (funDigitalRead(BTN_LEFT) == 0) {
+            counter = (6 + counter - 1) % 6;
+        } else if (funDigitalRead(BTN_RIGHT) == 0) {
+
+        } else {
+            counter = (counter + 1) % 6;
+        }
     }
 }
