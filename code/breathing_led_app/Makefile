@@ -4,8 +4,10 @@ TARGET:=breathing_led
 TARGET_MCU:=CH32V003
 
 # Set both variables to the same path
-CH32V003FUN:=/mnt/d/github\ repos/rv003usb/ch32v003fun/ch32fun
-CH32FUN:=/mnt/d/github\ repos/rv003usb/ch32v003fun/ch32fun
+# CH32V003FUN:=/mnt/d/github\ repos/rv003usb/ch32v003fun/ch32fun
+# CH32FUN:=/mnt/d/github\ repos/rv003usb/ch32v003fun/ch32fun
+CH32V003FUN:=/mnt/c/Users/zunmun/Documents/Stuff/Workspace/2025/hackbadge/rv003usb/ch32v003fun/ch32fun
+CH32FUN:=/mnt/c/Users/zunmun/Documents/Stuff/Workspace/2025/hackbadge/rv003usb/ch32v003fun/ch32fun
 
 # System clock speed
 FUNCONF_SYSTEM_CORE_CLOCK:=24000000
