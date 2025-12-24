@@ -1,0 +1,3 @@
+[submodule "code/env/rv003usb"]
+	path = code/env/rv003usb
+	url = https://github.com/cnlohr/rv003usb.git
