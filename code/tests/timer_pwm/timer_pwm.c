@@ -27,11 +27,16 @@ void t1pwm_init( void )
                          RCC_APB2Periph_TIM1;
     
     // PC4 is T1CH4, 10MHz Output alt func, push-pull
-    funPinMode( PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    funPinMode( PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF ); 
+
     funPinMode( PC6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode( PC5, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode( PC4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode( PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+
+    // Remap Register
+    AFIO->PCFR1 = AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
+
 
     // Reset TIM1 to init all regs
     RCC->APB2PRSTR |= RCC_APB2Periph_TIM1;
@@ -72,7 +77,7 @@ void t1pwm_init( void )
     // Enable TIM1
     TIM1->CTLR1 |= TIM_CEN;
 }
- 
+
 /*
 * set timer channel PW
 */
@@ -113,6 +118,85 @@ void t1pwm_force(uint8_t chl, uint8_t val)
     }
 }
  
+
+
+// mask for the CCxP bits
+// when set PWM outputs are held HIGH by default and pulled LOW
+// when zero PWM outputs are held LOW by default and pulled HIGH
+#define TIM2_DEFAULT 0xff
+//#define TIM2_DEFAULT 0x00
+
+/*
+ * initialize TIM2 for PWM
+ */
+void t2pwm_init( void )
+{
+	// Enable GPIOD and TIM2
+	RCC->APB2PCENR |= RCC_APB2Periph_GPIOD;
+	RCC->APB1PCENR |= RCC_APB1Periph_TIM2;
+
+	#ifdef TIM2_EN_CH3
+	// If using T2CH3 must also enable GPIOC
+	RCC->APB2PCENR |= RCC_APB2Periph_GPIOC;
+	#endif
+
+	// PD4 is T2CH1, 10MHz Output alt func, push-pull
+	
+	// PD3 is T2CH2, 10MHz Output alt func, push-pull
+    funPinMode( PD3, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+
+	// Reset TIM2 to init all regs
+	RCC->APB1PRSTR |= RCC_APB1Periph_TIM2;
+	RCC->APB1PRSTR &= ~RCC_APB1Periph_TIM2;
+	
+	// SMCFGR: default clk input is CK_INT
+	// set TIM2 clock prescaler divider 
+	TIM2->PSC = 0x0000;
+	// set PWM total cycle width
+	TIM2->ATRLR = 255;
+	
+	// for channel 1 and 2, let CCxS stay 00 (output), set OCxM to 110 (PWM I)
+	// enabling preload causes the new pulse width in compare capture register only to come into effect when UG bit in SWEVGR is set (= initiate update) (auto-clears)
+	TIM2->CHCTLR1 |= TIM_OC1M_2 | TIM_OC1M_1 | TIM_OC1PE | TIM_OC2M_2 | TIM_OC2M_1 | TIM_OC2PE;
+    TIM2->CHCTLR2 |= TIM_OC3M_2 | TIM_OC3M_1 | TIM_OC3PE;
+	TIM2->CHCTLR2 |= TIM_OC4M_2 | TIM_OC4M_1 | TIM_OC4PE;
+	
+    // CTLR1: default is up, events generated, edge align
+	// enable auto-reload of preload
+	TIM2->CTLR1 |= TIM_ARPE;
+
+	// Enable Channel outputs, set default state (based on TIM2_DEFAULT)
+	TIM2->CCER |= TIM_CC1E | (TIM_CC1P & TIM2_DEFAULT);
+	TIM2->CCER |= TIM_CC2E | (TIM_CC2P & TIM2_DEFAULT);
+    TIM2->CCER |= TIM_CC3E | (TIM_CC3P & TIM2_DEFAULT);
+	TIM2->CCER |= TIM_CC4E | (TIM_CC4P & TIM2_DEFAULT);
+
+	// initialize counter
+	TIM2->SWEVGR |= TIM_UG;
+
+	// Enable TIM2
+	TIM2->CTLR1 |= TIM_CEN;
+}
+
+
+/*
+ * set timer channel PW
+ */
+void t2pwm_setpw(uint8_t chl, uint16_t width)
+{
+	switch(chl&3)
+	{
+		case 0: TIM2->CH1CVR = width; break;
+		case 1: TIM2->CH2CVR = width; break;
+		case 2: TIM2->CH3CVR = width; break;
+		case 3: TIM2->CH4CVR = width; break;
+	}
+	//TIM2->SWEVGR |= TIM_UG; // load new value in compare capture register
+}
+
+  
+
+
  /*
   * entry
   */
@@ -128,6 +212,7 @@ void t1pwm_force(uint8_t chl, uint8_t val)
      // init TIM1 for PWM
      printf("initializing tim1...");
      t1pwm_init();
+     t2pwm_init();
      printf("done.\n\r");
          
      printf("looping...\n\r");
@@ -137,10 +222,19 @@ void t1pwm_force(uint8_t chl, uint8_t val)
 
      while(1)
      {
-         t1pwm_setpw(0, count); // Chl 1
-         t1pwm_setpw(1, count); // Chl 1
-         t1pwm_setpw(2, count); // Chl 1
-         t1pwm_setpw(3, count);	// Chl 4
+        t2pwm_setpw(1, count); // Purple
+        t1pwm_setpw(0, count); // Red
+        t1pwm_setpw(3, count); // Blue
+
+         
+        t1pwm_setpw(1, count); // Chl 1
+        t1pwm_setpw(2, count); // Chl 1
+         
+        //  t2pwm_setpw(0, count); // Chl 1
+        //  t2pwm_setpw(1, count); // Chl 1
+          // Chl 1
+        //  t2pwm_setpw(3, count);	// Chl 4
+        
          // count++;
          // count &= 255;
          Delay_Ms( 5 );
