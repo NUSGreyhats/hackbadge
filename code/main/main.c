@@ -56,8 +56,9 @@ int main(void)
     Interrupt_Btn_Configure();
     Interrupt_Btn_Enable();
 
-    global_badge_state.unlock_status = 0xffffffff;
-    global_badge_state.unlock_status = 0x2c;
+    global_badge_state = BadgeState_Read();
+    // global_badge_state.unlock_status = 0xffffffff;
+    // global_badge_state.unlock_status = 0x2c;
     // BadgeState_SetUnlocked
 
     // Turn off all LEDs initially (write HIGH for active-low)
@@ -65,6 +66,7 @@ int main(void)
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
     // mode_ctf_main();
+    printf("Welcome to Hackbadge\n");
     ModeBlinky_Setup();
     while (1)
     {
