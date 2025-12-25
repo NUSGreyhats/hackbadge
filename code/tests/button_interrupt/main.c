@@ -18,15 +18,18 @@
 #define BTN_RIGHT    PD0
 #define BTN_LEFT     PC2
 
-
 void EXTI7_0_IRQHandler( void ) __attribute__((interrupt));
 void EXTI7_0_IRQHandler( void ) 
 {
-	// Flash just a little blip.
-	funDigitalWrite( LED_PURPLE, FUN_LOW );
+    if (EXTI->INTFR & EXTI_Line2) { // Left Button (Line 2)
+        funDigitalWrite( LED_BLUE,    FUN_HIGH );
+	    EXTI->INTFR = EXTI_Line2; // Acknowledge the interrupt
+        return;
+    }
 
-	// Acknowledge the interrupt
-	EXTI->INTFR = EXTI_Line0;
+    // Right Button (Line 0)
+    funDigitalWrite( LED_BLUE,    FUN_LOW );
+    EXTI->INTFR = EXTI_Line0; // Acknowledge the interrupt   
 }
 
 
@@ -49,12 +52,12 @@ int main(void)
     funDigitalWrite(LED_PURPLE, FUN_HIGH);
     funDigitalWrite(LED_GREEN, FUN_HIGH);
     funDigitalWrite(LED_RED, FUN_HIGH);
-    
-    funDigitalWrite(LED_ORANGE, FUN_LOW);
+
+	RCC->APB2PCENR = RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO;
 
     // Button Interrupt Trigger
 	funPinMode( BTN_RIGHT, GPIO_CFGLR_IN_FLOAT );
-	RCC->APB2PCENR = RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO;
+	funPinMode( BTN_LEFT, GPIO_CFGLR_IN_FLOAT );
 
     	asm volatile(
 #if __GNUC__ > 10
@@ -65,9 +68,9 @@ int main(void)
 		 : : :  "t1" );
 
 	// Configure the IO as an interrupt.
-	AFIO->EXTICR = AFIO_EXTICR1_EXTI0_PD;
-	EXTI->INTENR = EXTI_INTENR_MR0; // Enable EXT3
-	EXTI->RTENR = EXTI_FTENR_TR0;  // Rising edge trigger
+	AFIO->EXTICR = AFIO_EXTICR1_EXTI2_PC | AFIO_EXTICR1_EXTI0_PD;
+	EXTI->INTENR = EXTI_INTENR_MR2 | EXTI_INTENR_MR0; // Enable EXT0
+	EXTI->RTENR  = EXTI_FTENR_TR2  | EXTI_FTENR_TR0;  // Rising edge trigger
 
 	// enable interrupt
 	NVIC_EnableIRQ( EXTI7_0_IRQn );
