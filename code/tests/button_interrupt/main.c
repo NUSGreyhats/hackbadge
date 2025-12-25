@@ -18,20 +18,15 @@
 #define BTN_RIGHT    PD0
 #define BTN_LEFT     PC2
 
-void EXTI7_0_IRQHandler( void ) __attribute__((interrupt));
-void EXTI7_0_IRQHandler( void ) 
-{
-    if (EXTI->INTFR & EXTI_Line2) { // Left Button (Line 2)
-        funDigitalWrite( LED_BLUE,    FUN_HIGH );
-	    EXTI->INTFR = EXTI_Line2; // Acknowledge the interrupt
-        return;
-    }
-
-    // Right Button (Line 0)
-    funDigitalWrite( LED_BLUE,    FUN_LOW );
-    EXTI->INTFR = EXTI_Line0; // Acknowledge the interrupt   
+void Interrupt_BtnLeft(){
+    funDigitalWrite( LED_BLUE,    FUN_HIGH );
 }
 
+void Interrupt_BtnRight(){
+    funDigitalWrite( LED_BLUE,    FUN_LOW );
+}
+
+#include "buttons_interrupts.h"
 
 int main(void)
 {
@@ -59,21 +54,9 @@ int main(void)
 	funPinMode( BTN_RIGHT, GPIO_CFGLR_IN_FLOAT );
 	funPinMode( BTN_LEFT, GPIO_CFGLR_IN_FLOAT );
 
-    	asm volatile(
-#if __GNUC__ > 10
-		".option arch, +zicsr\n"
-#endif
- 		"addi t1, x0, 3\n"
-		"csrrw x0, 0x804, t1\n"
-		 : : :  "t1" );
-
-	// Configure the IO as an interrupt.
-	AFIO->EXTICR = AFIO_EXTICR1_EXTI2_PC | AFIO_EXTICR1_EXTI0_PD;
-	EXTI->INTENR = EXTI_INTENR_MR2 | EXTI_INTENR_MR0; // Enable EXT0
-	EXTI->RTENR  = EXTI_FTENR_TR2  | EXTI_FTENR_TR0;  // Rising edge trigger
-
-	// enable interrupt
-	NVIC_EnableIRQ( EXTI7_0_IRQn );
+    Interrupt_Btn_Configure();
+    Interrupt_Btn_Enable();
+	
 
 	while(1)
 	{
