@@ -254,44 +254,34 @@ void displayLEDPWM(int purple, int red, int orange, int yellow, int green, int b
     // Delay_Ms( 1000 );
     clear(0);
     AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_FULLREMAP; 
-    funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    // funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode(PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode(PC6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
 
     t1pwm_setpw(0, red); 
     t2pwm_setpw(1, purple); 
-    // t1pwm_setpw(3, blue);
+    t1pwm_setpw(3, blue);
 
 
     // Change
     // Delay_Ms( 1000 );
     clear(0);
-    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
     funPinModeClear(PC4, 4);
-    funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
-    funPinMode(PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
+    // funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
+    // funPinMode(PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
 
     t1pwm_setpw(0, yellow);
     t1pwm_setpw(1, orange); // linked to blue?
     
-    
-    // Delay_Ms( 1000 );
-    // clear(0);
-    // funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
-    // AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
-    // AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
-    // t1pwm_setpw(0, red); 
-    // t2pwm_setpw(1, purple); 
-    // t1pwm_setpw(3, blue);
-
     // Delay_Ms( 1000 );
     clear(0);
-    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
-    funPinMode( LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinModeClear(PD2, 2);
     funPinModeClear(PC7, 7);
     funPinModeClear(PC6, 6);
+    AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP2;
+    funPinMode( PC4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF ); // BLUE
     // t1pwm_setpw(0, green);
     // t1pwm_setpw(1, green);
     t1pwm_setpw(2, green);
@@ -319,8 +309,8 @@ void displayLEDPWM(int purple, int red, int orange, int yellow, int green, int b
     while(1)
      {
         // displayLEDPWM(255, count, 255, count, 128, count);
-        // displayLEDPWM(64, count, 64, count, 16, count);
-        displayLEDPWM(0,0,0,0,0,0);
+        displayLEDPWM(64, count, 64, count, 16, count);
+        // displayLEDPWM(0,255,0,0,0,0);
         if (SysTick->CNT - ticks > Ticks_from_Ms(2000)) {
             break;
         }
@@ -328,17 +318,17 @@ void displayLEDPWM(int purple, int red, int orange, int yellow, int green, int b
 
     ticks = SysTick->CNT;
     int counter = 0;
-    int og[] = {64, 8, 64, 8, 16, 8};
+    int og[] = {64, 64, 64, 128, 16, 64};
     int values[] = {0, 0, 0, 0, 0, 0};
     while(1)
      {
         // displayLEDPWM(255, count, 255, count, 128, count);
         displayLEDPWM(values[0], values[1], values[2], values[3], values[4], values[5]);
 
-        if (SysTick->CNT - ticks > Ticks_from_Ms(1000)) {
+        if (SysTick->CNT - ticks > Ticks_from_Ms(200)) {
             values[counter] = 0;
             counter = (counter + 1) % 6;
-            values[counter] = 16; //og[counter];
+            values[counter] = og[counter];
             ticks = SysTick->CNT;
         }
      }
