@@ -25,14 +25,12 @@ int mode_ctf_check_and_unlock(){
 
     if ((val & 0b111) == 0b100){
         global_badge_state.unlock_status = 0xffffffff; // unlock all
-        // BadgeState_Write(global_badge_state);
+        BadgeState_Write(global_badge_state);
         return 1;
     } 
     if (val == 0b11111111){ // internal clear mode
-        // global_badge_state.unlock_status = 0;
-        // BadgeState_SetUnlocked(global_badge_state, 0);
-        // BadgeState_SetUnlocked(global_badge_state, 3);
         global_badge_state.unlock_status = 0x28;
+        BadgeState_Write(global_badge_state);
         return 1;
     }
 
