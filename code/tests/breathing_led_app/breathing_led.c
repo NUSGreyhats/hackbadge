@@ -82,13 +82,18 @@ void adc_init_pure_analog(void)
     ADC1->CTLR2 |= ADC_SWSTART;
 }
 
+int ranges[] = {64, 96, 192, 256, 300, 512};
+int leds[] = {LED_BLUE, LED_GREEN, LED_YELLOW, LED_ORANGE, LED_RED, LED_PURPLE};
 void show_voltage_on_leds(uint16_t adc_val)
 {
     // Turn off all LEDs
-    funDigitalWrite(LED_ORANGE, FUN_HIGH);
-    funDigitalWrite(LED_YELLOW, FUN_HIGH);
     funDigitalWrite(LED_BLUE, FUN_HIGH);
+    funDigitalWrite(LED_GREEN, FUN_HIGH);
+    funDigitalWrite(LED_YELLOW, FUN_HIGH);
+    funDigitalWrite(LED_ORANGE, FUN_HIGH);
+    funDigitalWrite(LED_RED, FUN_HIGH);
     funDigitalWrite(LED_PURPLE, FUN_HIGH);
+
 
     // Show voltage ranges on LEDs
     // 0-255 (0-0.82V) = Orange
@@ -96,18 +101,35 @@ void show_voltage_on_leds(uint16_t adc_val)
     // 512-767 (1.65-2.47V) = Blue
     // 768-1023 (2.47-3.3V) = Purple
 
-    if (adc_val < 256) {
-        funDigitalWrite(LED_ORANGE, FUN_LOW);
+    // Amplitude
+    for (int i=0; i<6; i++){
+        if (512-ranges[i] < adc_val && adc_val < 512 + ranges[i]) {
+            funDigitalWrite(leds[i], FUN_LOW);
+            break;
+        }
     }
-    else if (adc_val < 512) {
-        funDigitalWrite(LED_YELLOW, FUN_LOW);
-    }
-    else if (adc_val < 768) {
-        funDigitalWrite(LED_BLUE, FUN_LOW);
-    }
-    else {
-        funDigitalWrite(LED_PURPLE, FUN_LOW);
-    }
+
+    // if (adc_val < 256) {
+    //     funDigitalWrite(LED_ORANGE, FUN_LOW);
+    // }
+    // else if (adc_val < 256+128) {
+    //     funDigitalWrite(LED_BLUE, FUN_LOW);
+    // }
+    // else if (adc_val < 512) {
+    //     funDigitalWrite(LED_GREEN, FUN_LOW);
+    // }
+    // else if (adc_val < 512+64) {
+    //     // funDigitalWrite(LED_YELLOW, FUN_LOW);
+    // }
+    // else if (adc_val < 768) {
+    //     funDigitalWrite(LED_ORANGE, FUN_LOW);
+    // }
+    // else if (adc_val < 768+128) {
+    //     funDigitalWrite(LED_RED, FUN_LOW);
+    // }
+    // else {
+    //     funDigitalWrite(LED_PURPLE, FUN_LOW);
+    // }
 }
 
 int main(void)
