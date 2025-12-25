@@ -44,20 +44,21 @@ void mode_ctf_btn_buffer_shift(char new_val){
     mode_ctf_btn_buffer[0] = new_val;
 } 
 
-int mode_ctf_btn_buffer_map(){
-    int val = 0;
-    for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-        if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
-        val += (mode_ctf_btn_buffer[i]) << i;
-    }
-    return val;
-} 
+// int mode_ctf_btn_buffer_map(){
+//     int val = 0;
+//     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
+//         if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
+//         val += (mode_ctf_btn_buffer[i]) << i;
+//     }
+//     return val;
+// } 
 
 int mode_ctf_check_and_unlock(){
-    // switch(mode_ctf_btn_buffer_map()){
-
-    // }
-    return mode_ctf_btn_buffer[0] > 0;
+    // int val = mode_ctf_btn_buffer_map();
+    if (mode_ctf_btn_buffer[0] == 0 && mode_ctf_btn_buffer[1] == 1){
+        return 1;
+    } 
+    return 0;
 } 
 
 int mode_ctf_main(){
@@ -93,6 +94,7 @@ int mode_ctf_main(){
     }
 
     Interrupt_Btn_Enable();
+    Delay_Ms(1000);
     currentMode = MODE_BLINK;
 }
 

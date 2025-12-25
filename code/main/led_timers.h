@@ -183,6 +183,10 @@ void LED_PWM_Init() {
     #endif
 }
 
+void LED_PWM_Clear() {
+    t1pwm_clear(0);
+}
+
 void LED_PWM_Pass(int purple, int red, int orange, int yellow, int green, int blue){
     // Purple
     // Delay_Ms( 1000 );

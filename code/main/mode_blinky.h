@@ -115,13 +115,19 @@ void runBlinkPattern(uint8_t pattern)
 void ModeBlinky_Setup_Pattern(){
     allLedsOff();
     if (currentBlinkPattern == 0){
+        LED_PWM_Clear();
         led_pwm_gpio_init();
+        blinky_fade_clear();
         ticks = SysTick->CNT;
     }else if (currentBlinkPattern == 1){
+        LED_PWM_Clear();
         led_pwm_gpio_init();
+        blinky_fade_clear();
         ticks = SysTick->CNT;
     }else if (currentBlinkPattern == 2){
+        LED_PWM_Clear();
         led_pwm_gpio_init();
+        blinky_fade_clear();
         ticks = SysTick->CNT;
     }else {
         gpioLedInit();
