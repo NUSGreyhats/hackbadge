@@ -1,4 +1,4 @@
-TARGET:=timer_pwm
+TARGET:=main
 
 # Specify the full MCU name
 TARGET_MCU:=CH32V003
