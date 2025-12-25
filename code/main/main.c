@@ -7,6 +7,7 @@
 #include "led_gpio.h"
 #include "buttons.h"
 #include "mode_blinky.h"
+#include "buttons_interrupts.h"
 
 // Button pin definitions
 #define BTN1   BTN_LEFT
@@ -48,43 +49,28 @@ int main(void)
     funPinMode(BTN2, GPIO_CNF_IN_PUPD);
     funDigitalWrite(BTN2, FUN_HIGH);
 
+    Interrupt_Btn_Configure();
+    Interrupt_Btn_Enable();
+
+
     // Turn off all LEDs initially (write HIGH for active-low)
     allLedsOff();
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
     while (1)
     {
-        // Update button states
-        uint8_t btn1_event = updateButton(BTN1, &btn1, LOOP_DELAY_MS);
-        uint8_t btn2_event = updateButton(BTN2, &btn2, LOOP_DELAY_MS);
+        // // Update button states
+        // uint8_t btn1_event = updateButton(BTN1, &btn1, LOOP_DELAY_MS);
+        // uint8_t btn2_event = updateButton(BTN2, &btn2, LOOP_DELAY_MS);
 
-        // Handle BTN1 events - Mode switch
-        if (btn1_event == 2) {
-            currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
-            flashAllLeds();
-        }
+        // // Handle BTN1 events - Mode switch
+        // if (btn1_event == 2) {
+        // }
 
-        // Handle BTN2 events - Only in BLINK mode
-        if (currentMode == MODE_BLINK) {
-            // Long press: toggle blinking
-            if (btn2_event == 2) {
-                blinkingEnabled = !blinkingEnabled;
-                flashAllLeds();
-            }
-
-            // Short press: cycle pattern (only when blinking enabled)
-            if (btn2_event == 1 && blinkingEnabled) {
-                currentBlinkPattern = (currentBlinkPattern + 1) % 4;
-                if (currentBlinkPattern == 0){
-                    led_pwm_gpio_init();
-                }else {
-                    gpioLedInit();
-                };
-            }
-        }
+        
 
         // Execute mode behavior (only if no buttons currently pressed)
-        if (!btn1.is_pressed && !btn2.is_pressed) {
+        // if (!btn1.is_pressed && !btn2.is_pressed) {
             if (currentMode == MODE_BLINK && blinkingEnabled) {
                 funDigitalWrite(LED_PURPLE, LED_ON);
                 runBlinkPattern(currentBlinkPattern);
@@ -100,11 +86,39 @@ int main(void)
                 allLedsOff();
                 Delay_Ms(LOOP_DELAY_MS);
             }
-        }
-        else {
-            // Buttons being pressed, just wait
-            Delay_Ms(LOOP_DELAY_MS);
-        }
+        // }
+        // else {
+        //     // Buttons being pressed, just wait
+        //     Delay_Ms(LOOP_DELAY_MS);
+        // }
         
+    }
+}
+
+
+
+void Interrupt_BtnLeft(){
+    currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
+    flashAllLeds();
+}
+
+void Interrupt_BtnRight(){
+    // Handle BTN2 events - Only in BLINK mode
+    if (currentMode == MODE_BLINK) {
+        // // Long press: toggle blinking
+        // if (btn2_event == 2) {
+        //     blinkingEnabled = !blinkingEnabled;
+        //     flashAllLeds();
+        // }
+
+        // // Short press: cycle pattern (only when blinking enabled)
+        // if (btn2_event == 1 && blinkingEnabled) {
+            currentBlinkPattern = (currentBlinkPattern + 1) % 4;
+            // if (currentBlinkPattern == 0){
+            //     led_pwm_gpio_init();
+            // }else {
+            //     gpioLedInit();
+            // };
+        // }
     }
 }
