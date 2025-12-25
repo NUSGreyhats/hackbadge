@@ -37,9 +37,16 @@ int mode_ctf_check_and_unlock(){
     return 0;
 } 
 
+int mode_ctf_led_ticks;
+void mode_ctf_led(int yellow, int blue, int ms) {
+    mode_ctf_led_ticks = SysTick->CNT;
+    while (SysTick->CNT - mode_ctf_led_ticks < Ticks_from_Ms(ms)) {
+        LED_PWM_Pass(16, 0, 0, yellow, 0, blue);
+    }
+}
 int mode_ctf_main(){
     Interrupt_Btn_Disable();
-    gpioLedInit();
+    led_pwm_gpio_init();
 
     // Buffer
     memset(mode_ctf_btn_buffer, 8, MODE_CTF_KEYLEN);
@@ -47,31 +54,33 @@ int mode_ctf_main(){
     funDigitalWrite(LED_YELLOW, LED_ON);
     while (1)
     {
+        LED_PWM_Pass(16, 0, 0, 0, 0, 0);
         // // Update button states
         uint8_t btnl_event = readButton(BTN_LEFT);
         uint8_t btnr_event = readButton(BTN_RIGHT);
 
         // Handle BTN1 events - Mode switch
         if (btnl_event == 1) {
-            funDigitalWrite(LED_RED, LED_ON);
             mode_ctf_btn_buffer_shift(0);
             if (mode_ctf_check_and_unlock()){ break; }
-            Delay_Ms(500);
-            funDigitalWrite(LED_RED, LED_OFF);
-            Delay_Ms(200);
+            mode_ctf_led(64, 0, 500);
+            mode_ctf_led(0, 0, 200);
         }
 
         if (btnr_event == 1) {
             funDigitalWrite(LED_ORANGE, LED_ON);
             mode_ctf_btn_buffer_shift(1);
             if (mode_ctf_check_and_unlock()){ break; }
-            Delay_Ms(500);
-            funDigitalWrite(LED_ORANGE, LED_OFF);
-            Delay_Ms(200);
+            mode_ctf_led(0, 64, 500);
+            mode_ctf_led(0,  0, 200);
         }
     }
 
+    
     Interrupt_Btn_Enable();
+    Delay_Ms(100);
+    gpioLedInit();
+    flashAllLeds();
     Delay_Ms(1000);
     currentMode = MODE_BLINK;
 }
