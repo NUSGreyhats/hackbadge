@@ -6,8 +6,8 @@
 #include "led_timers.h"
 #include "led_gpio.h"
 #include "buttons.h"
-#include "mode_blinky.h"
 #include "buttons_interrupts.h"
+#include "badge_state.h"
 
 // Button pin definitions
 #define BTN1   BTN_LEFT
@@ -24,6 +24,8 @@ typedef enum {
 } SystemMode;
 static SystemMode currentMode = MODE_BLINK;
 
+badge_state global_badge_state;
+
 // Flash all LEDs for 1 second (mode change indicator)
 void flashAllLeds()
 {
@@ -35,68 +37,8 @@ void flashAllLeds()
     allLedsOff();
 }
 
-#define MODE_CTF_KEYLEN 8
-char mode_ctf_btn_buffer[MODE_CTF_KEYLEN];
-void mode_ctf_btn_buffer_shift(char new_val){
-    for(int i=0; i<MODE_CTF_KEYLEN-1; i++){
-        mode_ctf_btn_buffer[i+1] = mode_ctf_btn_buffer[i];
-    }
-    mode_ctf_btn_buffer[0] = new_val;
-} 
-
-// int mode_ctf_btn_buffer_map(){
-//     int val = 0;
-//     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-//         if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
-//         val += (mode_ctf_btn_buffer[i]) << i;
-//     }
-//     return val;
-// } 
-
-int mode_ctf_check_and_unlock(){
-    // int val = mode_ctf_btn_buffer_map();
-    if (mode_ctf_btn_buffer[0] == 0 && mode_ctf_btn_buffer[1] == 1){
-        return 1;
-    } 
-    return 0;
-} 
-
-int mode_ctf_main(){
-    Interrupt_Btn_Disable();
-    gpioLedInit();
-
-    // Buffer
-    memset(mode_ctf_btn_buffer, -1, MODE_CTF_KEYLEN);
-
-    funDigitalWrite(LED_YELLOW, LED_ON);
-    while (1)
-    {
-        // // Update button states
-        uint8_t btnl_event = readButton(BTN_LEFT);
-        uint8_t btnr_event = readButton(BTN_RIGHT);
-
-        // Handle BTN1 events - Mode switch
-        if (btnl_event == 1) {
-            funDigitalWrite(LED_RED, LED_ON);
-            Delay_Ms(100);
-            mode_ctf_btn_buffer_shift(0);
-            if (mode_ctf_check_and_unlock()){ break; }
-            funDigitalWrite(LED_RED, LED_OFF);
-        }
-
-        if (btnr_event == 1) {
-            funDigitalWrite(LED_ORANGE, LED_ON);
-            Delay_Ms(100);
-            mode_ctf_btn_buffer_shift(1);
-            if (mode_ctf_check_and_unlock()){ break; }
-            funDigitalWrite(LED_ORANGE, LED_OFF);
-        }
-    }
-
-    Interrupt_Btn_Enable();
-    Delay_Ms(1000);
-    currentMode = MODE_BLINK;
-}
+#include "mode/mode_ctf.h"
+#include "mode/mode_blinky.h"
 
 int main(void)
 {
@@ -114,6 +56,9 @@ int main(void)
     Interrupt_Btn_Configure();
     Interrupt_Btn_Enable();
 
+    global_badge_state.unlock_status = 0xffffffff;
+    global_badge_state.unlock_status = 0x2c;
+    // BadgeState_SetUnlocked
 
     // Turn off all LEDs initially (write HIGH for active-low)
     allLedsOff();

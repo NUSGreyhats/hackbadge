@@ -15,6 +15,13 @@ void blinky_cycle() {
     if (SysTick->CNT - ticks > Ticks_from_Ms(200)) {
         values[counter] = 0;
         counter = (6 + counter - 1) % 6;
+        
+        for (int i=0; i< 6; i++){
+            if (!BadgeState_Unlocked(global_badge_state, counter)){
+                counter = (6 + counter - 1) % 6; //  skip leds
+            }
+        }
+
         values[counter] = og[counter];
         ticks = SysTick->CNT;
     }
