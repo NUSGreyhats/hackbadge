@@ -16,10 +16,12 @@
 volatile uint16_t adc_buffer[ADC_NUMCHLS];
 
 // LED pins for raw value display
-#define LED_PURPLE   PC2
-#define LED_BLUE     PC4
-#define LED_YELLOW   PC6
-#define LED_ORANGE   PC7
+#define LED_PURPLE   PD3 //        T1CH4_1                          T2CH2, T2CH2_2/
+#define LED_RED      PD2 //                   T1CH1_2   T1CH2N_3,          T2CH3_1
+#define LED_ORANGE   PC7 //        T1CH2_1              T1CH2_3            T2CH2_3  
+#define LED_YELLOW   PC6 //        T1CH1_1,             T1CH3N_3 
+#define LED_GREEN    PC5 //                             T1CH3_3      T1ETR, T2CH1ETR(1)_1,
+#define LED_BLUE     PC4 // T1CH4, T1CH2N_1 / T1CH4_2 / T1CH1_3
 
 void adc_init_pure_analog(void)
 {
@@ -112,9 +114,26 @@ int main(void)
 {
     SystemInit();
 
+    // Setup LEDs
+    funGpioInitAll();
+    funPinMode(LED_PURPLE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_YELLOW, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_ORANGE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+
+    funDigitalWrite(LED_ORANGE, FUN_LOW);
+    funDigitalWrite(LED_YELLOW, FUN_HIGH);
+    funDigitalWrite(LED_BLUE, FUN_HIGH);
+    funDigitalWrite(LED_PURPLE, FUN_HIGH);
+    funDigitalWrite(LED_GREEN, FUN_HIGH);
+    funDigitalWrite(LED_RED, FUN_HIGH);
+
     // Wait for debug printf
-    while (!DebugPrintfBufferFree());
+    // while (!DebugPrintfBufferFree());
     Delay_Ms(100);
+    funDigitalWrite(LED_ORANGE, FUN_HIGH);
+    funDigitalWrite(LED_RED, FUN_LOW);
+
 
     printf("\r\n\r\n=== RAW ADC MONITOR ===\n");
     printf("No baseline tracking, no deviation calc\n");
@@ -125,12 +144,6 @@ int main(void)
     adc_init_pure_analog();
     printf("done.\n\n");
 
-    // Setup LEDs
-    funGpioInitAll();
-    funPinMode(LED_PURPLE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_BLUE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_YELLOW, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_ORANGE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
 
     printf("Sample | ADC Value | Millivolts | LED\n");
     printf("-------|-----------|------------|-----\n");
