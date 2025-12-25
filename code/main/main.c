@@ -35,6 +35,53 @@ void flashAllLeds()
     allLedsOff();
 }
 
+#define MODE_CTF_KEYLEN 8
+volatile char mode_ctf_btn_buffer[MODE_CTF_KEYLEN];
+void mode_ctf_btn_buffer_shift(char new_val){
+    for(int i=0; i<MODE_CTF_KEYLEN-1; i++){
+        mode_ctf_btn_buffer[i+1] = mode_ctf_btn_buffer[i];
+    }
+    mode_ctf_btn_buffer[0] = new_val;
+} 
+
+int mode_ctf_btn_buffer_map(){
+    int val = 0;
+    for (int i=0; i<MODE_CTF_KEYLEN; i++) {
+        if (mode_ctf_btn_buffer == 0) { return -1; } // invalid
+        val += (mode_ctf_btn_buffer[i]-1) << i;
+    }
+    return val;
+} 
+
+int mode_ctf_check_and_unlock(){
+} 
+
+int mode_ctf_btnl(){
+    mode_ctf_btn_buffer_shift(1);
+} 
+
+int mode_ctf_btnr(){
+    mode_ctf_btn_buffer_shift(2);
+} 
+
+
+int mode_ctf_main(){
+    // Interrupt_Btn_Disable();
+    // Buffer
+    memset(mode_ctf_btn_buffer, 0, MODE_CTF_KEYLEN);
+    while (1)
+    {
+        if (mode_ctf_btn_buffer[0] == 2){
+            funDigitalWrite(LED_ORANGE, LED_OFF);
+        }
+        if (mode_ctf_btn_buffer[0] == 1){
+            funDigitalWrite(LED_ORANGE, LED_ON);
+        }
+        if (mode_ctf_check_and_unlock()){ break; }
+    }
+    // Interrupt_Btn_Enable();
+    currentMode = MODE_BLINK;
+}
 
 int main(void)
 {
@@ -69,10 +116,7 @@ int main(void)
             runBlinkPattern(currentBlinkPattern);
         }
         else if (currentMode == MODE_CTF) {
-            // funDigitalWrite(LED_RED, LED_ON);
-            // CTF mode - dim purple breathing
-            lightUpLed("purple", 20, 1);
-            Delay_Ms(500);
+            mode_ctf_main();
         }
         else {
             // Blink mode but disabled - keep LEDs off
@@ -86,6 +130,12 @@ int main(void)
 
 
 void Interrupt_BtnLeft(){
+    if (currentMode == MODE_CTF) {
+        mode_ctf_btnr();
+        return;
+    }
+
+
     currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
 
     gpioLedInit();
@@ -104,5 +154,7 @@ void Interrupt_BtnRight(){
     // Handle BTN2 events - Only in BLINK mode
     if (currentMode == MODE_BLINK) {
         ModeBlinky_changeMode();
+    } else if (currentMode == MODE_CTF) {
+        mode_ctf_btnr();
     }
 }
