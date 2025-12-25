@@ -221,3 +221,6 @@ void LED_PWM_Pass(int purple, int red, int orange, int yellow, int green, int bl
 
 }
 
+void LED_PWM_Test_Pass () {
+    LED_PWM_Pass(64, 64, 64, 64, 8, 64);
+}

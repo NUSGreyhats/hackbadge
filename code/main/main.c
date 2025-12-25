@@ -57,40 +57,28 @@ int main(void)
     allLedsOff();
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
+    ModeBlinky_Setup();
     while (1)
     {
         // // Update button states
         // uint8_t btn1_event = updateButton(BTN1, &btn1, LOOP_DELAY_MS);
         // uint8_t btn2_event = updateButton(BTN2, &btn2, LOOP_DELAY_MS);
 
-        // // Handle BTN1 events - Mode switch
-        // if (btn1_event == 2) {
-        // }
-
-        
-
-        // Execute mode behavior (only if no buttons currently pressed)
-        // if (!btn1.is_pressed && !btn2.is_pressed) {
-            if (currentMode == MODE_BLINK && blinkingEnabled) {
-                funDigitalWrite(LED_PURPLE, LED_ON);
-                runBlinkPattern(currentBlinkPattern);
-            }
-            else if (currentMode == MODE_CTF) {
-                // funDigitalWrite(LED_RED, LED_ON);
-                // CTF mode - dim purple breathing
-                lightUpLed("purple", 20, 1);
-                Delay_Ms(500);
-            }
-            else {
-                // Blink mode but disabled - keep LEDs off
-                allLedsOff();
-                Delay_Ms(LOOP_DELAY_MS);
-            }
-        // }
-        // else {
-        //     // Buttons being pressed, just wait
-        //     Delay_Ms(LOOP_DELAY_MS);
-        // }
+        if (currentMode == MODE_BLINK && blinkingEnabled) {
+            // funDigitalWrite(LED_PURPLE, LED_ON);
+            runBlinkPattern(currentBlinkPattern);
+        }
+        else if (currentMode == MODE_CTF) {
+            // funDigitalWrite(LED_RED, LED_ON);
+            // CTF mode - dim purple breathing
+            lightUpLed("purple", 20, 1);
+            Delay_Ms(500);
+        }
+        else {
+            // Blink mode but disabled - keep LEDs off
+            allLedsOff();
+            Delay_Ms(LOOP_DELAY_MS);
+        }
         
     }
 }
@@ -99,26 +87,22 @@ int main(void)
 
 void Interrupt_BtnLeft(){
     currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
+
+    gpioLedInit();
     flashAllLeds();
+    switch (currentMode) {
+        case MODE_BLINK:
+            ModeBlinky_Setup();
+            break;
+        default:
+            gpioLedInit();
+            break;
+    }
 }
 
 void Interrupt_BtnRight(){
     // Handle BTN2 events - Only in BLINK mode
     if (currentMode == MODE_BLINK) {
-        // // Long press: toggle blinking
-        // if (btn2_event == 2) {
-        //     blinkingEnabled = !blinkingEnabled;
-        //     flashAllLeds();
-        // }
-
-        // // Short press: cycle pattern (only when blinking enabled)
-        // if (btn2_event == 1 && blinkingEnabled) {
-            currentBlinkPattern = (currentBlinkPattern + 1) % 4;
-            // if (currentBlinkPattern == 0){
-            //     led_pwm_gpio_init();
-            // }else {
-            //     gpioLedInit();
-            // };
-        // }
+        ModeBlinky_changeMode();
     }
 }
