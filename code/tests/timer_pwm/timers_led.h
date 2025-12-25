@@ -6,7 +6,9 @@
 #include "ch32fun.h"
 #include <stdio.h>
 #include "pinout.h"
- 
+
+// #define LED_USE_TIMER2 // For a brighter Purple
+
 //// Timer Setup/ Wrapper
 void gpio_init ( void ) {
     
@@ -20,7 +22,7 @@ void gpio_init ( void ) {
     funPinMode( PC5, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode( PC4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode( PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
-    // Timer 2
+    // Timer 1/2
     funPinMode( PD3, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
 }
 
@@ -157,11 +159,11 @@ void t2pwm_setpw(uint8_t chl, uint16_t width)
 //// Application Functions ///////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void tpwm_clear(int val){
-    for (int i=0; i<4; i++){
-        t1pwm_setpw(i, val); 
-        t2pwm_setpw(i, val); 
-    }
+void t1pwm_clear(int val){
+    t1pwm_setpw(0, val); 
+    t1pwm_setpw(1, val); 
+    t1pwm_setpw(2, val); 
+    t1pwm_setpw(3, val); 
 }
 
  
@@ -173,30 +175,43 @@ void tpwm_clear(int val){
 // #define LED_GREEN    PC5 //                             T1CH3_3      T1ETR, T2CH1ETR(1)_1,
 // #define LED_BLUE     PC4 // T1CH4, T1CH2N_1 / T1CH4_2 / T1CH1_3
 
-void displayLEDPWM(int purple, int red, int orange, int yellow, int green, int blue){
+void LED_Init() {
+    gpio_init();
+    t1pwm_init();
+    #ifdef LED_USE_TIMER2
+        t2pwm_init();
+    #endif
+}
+
+void LED_PWM_Pass(int purple, int red, int orange, int yellow, int green, int blue){
     // Purple
     // Delay_Ms( 1000 );
-    tpwm_clear(0);
+    t1pwm_clear(0);
     AFIO->PCFR1 &= ~AFIO_PCFR1_TIM1_REMAP_FULLREMAP; 
     funPinMode(PD2, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode(PC7, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
     funPinMode(PC6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP_AF );
 
     t1pwm_setpw(0, red); 
-    t2pwm_setpw(1, purple); 
+    #ifdef LED_USE_TIMER2
+        t2pwm_setpw(1, purple); 
+    #endif
     t1pwm_setpw(3, blue);
 
 
     // Delay_Ms( 1000 );
-    tpwm_clear(0);
+    t1pwm_clear(0);
     funPinModeClear(PC4, 4);
     AFIO->PCFR1 |=  AFIO_PCFR1_TIM1_REMAP_PARTIALREMAP1;
 
     t1pwm_setpw(0, yellow);
     t1pwm_setpw(1, orange); // linked to blue?
+    #ifndef LED_USE_TIMER2
+        t1pwm_setpw(3, purple); 
+    #endif
     
     // Delay_Ms( 1000 );
-    tpwm_clear(0);
+    t1pwm_clear(0);
     funPinModeClear(PD2, 2);
     funPinModeClear(PC7, 7);
     funPinModeClear(PC6, 6);
