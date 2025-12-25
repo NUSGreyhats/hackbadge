@@ -3,6 +3,16 @@
 
 #include "pinout.h"  
 
+void gpioLedInit( void ) {
+    // Configure LEDs as outputs
+    funPinMode(LED_PURPLE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_RED,    GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_ORANGE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_YELLOW, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_GREEN,  GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_BLUE,   GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+}
+
 // LEDs are active LOW (GPIO LOW = LED ON)
 #define LED_ON   FUN_LOW
 #define LED_OFF  FUN_HIGH

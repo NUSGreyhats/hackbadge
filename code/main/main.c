@@ -6,6 +6,7 @@
 #include "led_timers.h"
 #include "led_gpio.h"
 #include "buttons.h"
+#include "mode_blinky.h"
 
 // Button pin definitions
 #define BTN1   BTN_LEFT
@@ -20,11 +21,7 @@ typedef enum {
     MODE_BLINK = 0,
     MODE_CTF = 1
 } SystemMode;
-
 static SystemMode currentMode = MODE_BLINK;
-static uint8_t blinkingEnabled = 1;
-static uint8_t currentBlinkPattern = 0;
-
 
 // Flash all LEDs for 1 second (mode change indicator)
 void flashAllLeds()
@@ -37,44 +34,13 @@ void flashAllLeds()
     allLedsOff();
 }
 
-// Blink patterns
-void runBlinkPattern(uint8_t pattern)
-{
-    switch (pattern)
-    {
-    case 0:
-        // Purple blink
-        lightUpLed("purple", 10, 1);
-        break;
-    case 1:
-        // Blue blink
-        lightUpLed("blue", 10, 1);
-        break;
-    case 2:
-        // Yellow blink
-        lightUpLed("yellow", 10, 1);
-        break;
-    case 3:
-        // Alternating purple + blue
-        lightUpLed("purple", 10, 1);
-        lightUpLed("blue", 100, 2);
-        break;
-    }
-    Delay_Ms(300); // Pause between blinks
-}
 
 int main(void)
 {
     SystemInit();
     funGpioInitAll();
-
-    // Configure LEDs as outputs
-    funPinMode(LED_PURPLE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_RED,    GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_ORANGE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_YELLOW, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_GREEN,  GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
-    funPinMode(LED_BLUE,   GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    LED_PWM_Init();
+    gpioLedInit();
 
     // Configure buttons with pull-up
     funPinMode(BTN1, GPIO_CNF_IN_PUPD);
@@ -109,6 +75,11 @@ int main(void)
             // Short press: cycle pattern (only when blinking enabled)
             if (btn2_event == 1 && blinkingEnabled) {
                 currentBlinkPattern = (currentBlinkPattern + 1) % 4;
+                if (currentBlinkPattern == 0){
+                    led_pwm_gpio_init();
+                }else {
+                    gpioLedInit();
+                };
             }
         }
 
