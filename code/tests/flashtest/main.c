@@ -24,15 +24,8 @@ void Flash_Unlock(){
 	}
 }
 
-// Should be a lock
 void Flash_Lock(){
-    FLASH->KEYR = 0;
-	FLASH->KEYR = 0;
-
-	FLASH->MODEKEYR = 0;
-	FLASH->MODEKEYR = 0;
-
-	// if( FLASH->CTLR & 0x8080 )
+    FLASH->CTLR = FLASH_CTLR_LOCK;
 }
 
 void Flash_Erase(uint32_t* ptr){
@@ -110,7 +103,9 @@ badge_state BadgeState_Read(){
 }
 
 void BadgeState_Erase(){
+    Flash_Unlock();
     Flash_Erase((uint32_t*)STORAGE_ADDR);
+    Flash_Lock();
 }
 
 void BadgeState_Write(badge_state st){
@@ -118,8 +113,9 @@ void BadgeState_Write(badge_state st){
     page.state = st;
 
     Flash_Unlock();
-    Flash_Write((uint32_t*)STORAGE_ADDR, (uint32_t*)(page.memory), STATE_STRUCT_SIZE);
-    // Flash_Lock();
+    Flash_Erase((uint32_t*)STORAGE_ADDR); // NEED TO ERASE - set all to 0xffffffff
+    Flash_Write((uint32_t*)STORAGE_ADDR, (uint32_t*)(page.memory), STATE_STRUCT_SIZE); // like an & operation, only keep bits
+    Flash_Lock();
 }
 
 
@@ -202,7 +198,8 @@ int main()
     // Locking doesn't really work tbh
     Flash_Lock();
 
-	for(int i = 0; i < 16; i++ ) { copydata[i] = 0xabcd1237 + i+i; }
+    Flash_Erase(ptr);
+    for(int i = 0; i < 16; i++ ) { copydata[i] = 0xabcd1237 + i+i; }
     Flash_Write(ptr, copydata, 16);
 
     printf( "\n\n" );
@@ -216,9 +213,13 @@ int main()
     st = BadgeState_Read();
     printf("Status: %x\n", st.unlock_status);
 
+    BadgeState_Erase();
+    st = BadgeState_Read();
+    printf("Status: %x\n", st.unlock_status);
+
     // Badge State Example
     st.unlock_status = 0x12345678deadbeef;
-    st.unlock_status = 0xffffffffffff0000;
+    // st.unlock_status = 0xffffffffffff0000;
     BadgeState_Write(st);
 
 
