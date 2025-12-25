@@ -4,6 +4,8 @@ void Interrupt_BtnLeft();
 void Interrupt_BtnRight();
 
 void Interrupt_Btn_Configure(){
+    RCC->APB2PCENR |= RCC_APB2Periph_AFIO;
+    
     asm volatile(
 #if __GNUC__ > 10
 		".option arch, +zicsr\n"
@@ -24,7 +26,6 @@ void Interrupt_Btn_Enable(){
 }
 
 void Interrupt_Btn_Disable(){
-    // enable interrupt
 	NVIC_DisableIRQ( EXTI7_0_IRQn );
 }
 

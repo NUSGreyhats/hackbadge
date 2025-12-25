@@ -36,7 +36,7 @@ void flashAllLeds()
 }
 
 #define MODE_CTF_KEYLEN 8
-volatile char mode_ctf_btn_buffer[MODE_CTF_KEYLEN];
+char mode_ctf_btn_buffer[MODE_CTF_KEYLEN];
 void mode_ctf_btn_buffer_shift(char new_val){
     for(int i=0; i<MODE_CTF_KEYLEN-1; i++){
         mode_ctf_btn_buffer[i+1] = mode_ctf_btn_buffer[i];
@@ -47,39 +47,52 @@ void mode_ctf_btn_buffer_shift(char new_val){
 int mode_ctf_btn_buffer_map(){
     int val = 0;
     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-        if (mode_ctf_btn_buffer == 0) { return -1; } // invalid
-        val += (mode_ctf_btn_buffer[i]-1) << i;
+        if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
+        val += (mode_ctf_btn_buffer[i]) << i;
     }
     return val;
 } 
 
 int mode_ctf_check_and_unlock(){
-} 
+    // switch(mode_ctf_btn_buffer_map()){
 
-int mode_ctf_btnl(){
-    mode_ctf_btn_buffer_shift(1);
+    // }
+    return mode_ctf_btn_buffer[0] > 0;
 } 
-
-int mode_ctf_btnr(){
-    mode_ctf_btn_buffer_shift(2);
-} 
-
 
 int mode_ctf_main(){
-    // Interrupt_Btn_Disable();
+    Interrupt_Btn_Disable();
+    gpioLedInit();
+
     // Buffer
-    memset(mode_ctf_btn_buffer, 0, MODE_CTF_KEYLEN);
+    memset(mode_ctf_btn_buffer, -1, MODE_CTF_KEYLEN);
+
+    funDigitalWrite(LED_YELLOW, LED_ON);
     while (1)
     {
-        if (mode_ctf_btn_buffer[0] == 2){
+        // // Update button states
+        uint8_t btnl_event = readButton(BTN_LEFT);
+        uint8_t btnr_event = readButton(BTN_RIGHT);
+
+        // Handle BTN1 events - Mode switch
+        if (btnl_event == 1) {
+            funDigitalWrite(LED_RED, LED_ON);
+            Delay_Ms(100);
+            mode_ctf_btn_buffer_shift(0);
+            if (mode_ctf_check_and_unlock()){ break; }
+            funDigitalWrite(LED_RED, LED_OFF);
+        }
+
+        if (btnr_event == 1) {
+            funDigitalWrite(LED_ORANGE, LED_ON);
+            Delay_Ms(100);
+            mode_ctf_btn_buffer_shift(1);
+            if (mode_ctf_check_and_unlock()){ break; }
             funDigitalWrite(LED_ORANGE, LED_OFF);
         }
-        if (mode_ctf_btn_buffer[0] == 1){
-            funDigitalWrite(LED_ORANGE, LED_ON);
-        }
-        if (mode_ctf_check_and_unlock()){ break; }
     }
-    // Interrupt_Btn_Enable();
+
+    Interrupt_Btn_Enable();
     currentMode = MODE_BLINK;
 }
 
@@ -104,6 +117,7 @@ int main(void)
     allLedsOff();
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
+    // mode_ctf_main();
     ModeBlinky_Setup();
     while (1)
     {
@@ -118,11 +132,6 @@ int main(void)
         else if (currentMode == MODE_CTF) {
             mode_ctf_main();
         }
-        else {
-            // Blink mode but disabled - keep LEDs off
-            allLedsOff();
-            Delay_Ms(LOOP_DELAY_MS);
-        }
         
     }
 }
@@ -130,12 +139,6 @@ int main(void)
 
 
 void Interrupt_BtnLeft(){
-    if (currentMode == MODE_CTF) {
-        mode_ctf_btnr();
-        return;
-    }
-
-
     currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
 
     gpioLedInit();
@@ -154,7 +157,5 @@ void Interrupt_BtnRight(){
     // Handle BTN2 events - Only in BLINK mode
     if (currentMode == MODE_BLINK) {
         ModeBlinky_changeMode();
-    } else if (currentMode == MODE_CTF) {
-        mode_ctf_btnr();
     }
 }
