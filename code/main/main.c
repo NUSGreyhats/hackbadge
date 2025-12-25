@@ -24,7 +24,7 @@ typedef enum {
 } SystemMode;
 static SystemMode currentMode = MODE_BLINK;
 
-badge_state global_badge_state;
+volatile badge_state global_badge_state;
 
 // Flash all LEDs for 1 second (mode change indicator)
 void flashAllLeds()

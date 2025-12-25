@@ -8,26 +8,33 @@ void mode_ctf_btn_buffer_shift(char new_val){
         mode_ctf_btn_buffer[i+1] = mode_ctf_btn_buffer[i];
     }
     mode_ctf_btn_buffer[0] = new_val;
-    printf("%d %d %d\n", mode_ctf_btn_buffer[0], mode_ctf_btn_buffer[1], mode_ctf_btn_buffer[2]);
 } 
 
-// int mode_ctf_btn_buffer_map(){
-//     int val = 0;
-//     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-//         if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
-//         val += (mode_ctf_btn_buffer[i]) << i;
-//     }
-//     return val;
-// } 
+int mode_ctf_btn_buffer_map(){
+    int val = 0;
+    for (int i=0; i<MODE_CTF_KEYLEN; i++) {
+        if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
+        val += (mode_ctf_btn_buffer[i]) << i;
+    }
+    return val;
+} 
 
 int mode_ctf_check_and_unlock(){
-    // int val = mode_ctf_btn_buffer_map();
+    int val = mode_ctf_btn_buffer_map();
+    printf("%d: %d %d %d\n", val, mode_ctf_btn_buffer[0], mode_ctf_btn_buffer[1], mode_ctf_btn_buffer[2]);
 
-    if (mode_ctf_btn_buffer[0] == 0 && mode_ctf_btn_buffer[1] == 0 && mode_ctf_btn_buffer[2] == 1){
+    if ((val & 0b111) == 0b100){
         global_badge_state.unlock_status = 0xffffffff; // unlock all
         // BadgeState_Write(global_badge_state);
         return 1;
     } 
+    if (val == 0b11111111){ // internal clear mode
+        // global_badge_state.unlock_status = 0;
+        // BadgeState_SetUnlocked(global_badge_state, 0);
+        // BadgeState_SetUnlocked(global_badge_state, 3);
+        global_badge_state.unlock_status = 0x28;
+        return 1;
+    }
 
     return 0;
 } 
@@ -51,16 +58,18 @@ int mode_ctf_main(){
             funDigitalWrite(LED_RED, LED_ON);
             mode_ctf_btn_buffer_shift(0);
             if (mode_ctf_check_and_unlock()){ break; }
-            Delay_Ms(1000);
+            Delay_Ms(500);
             funDigitalWrite(LED_RED, LED_OFF);
+            Delay_Ms(200);
         }
 
         if (btnr_event == 1) {
             funDigitalWrite(LED_ORANGE, LED_ON);
             mode_ctf_btn_buffer_shift(1);
             if (mode_ctf_check_and_unlock()){ break; }
-            Delay_Ms(1000);
+            Delay_Ms(500);
             funDigitalWrite(LED_ORANGE, LED_OFF);
+            Delay_Ms(200);
         }
     }
 
