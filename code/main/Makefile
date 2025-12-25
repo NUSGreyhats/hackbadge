@@ -12,7 +12,7 @@ MINICHLINK:=../env/rv003usb/ch32v003fun/minichlink/minichlink
 FUNCONF_SYSTEM_CORE_CLOCK:=24000000
 
 # Source files
-SRCS:=main.c
+SRCS:=main.c wch/ch32v00x_exti.c
 
 # Include the ch32v003fun build system
 include $(CH32V003FUN)/ch32fun.mk
