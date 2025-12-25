@@ -85,7 +85,7 @@ void adc_init_pure_analog(void)
 }
 
 int counter = 0;
-int og_led_brightness[] = {64, 64, 64, 128, 16, 64};
+int og_led_brightness[] = {64, 8, 64, 128, 64, 64};
 int ranges[] = {64, 128, 192, 256, 300, 512};
 int leds[] = {LED_BLUE, LED_GREEN, LED_YELLOW, LED_ORANGE, LED_RED, LED_PURPLE};
 int values[] = {0, 0, 0, 0, 0, 0};
@@ -94,13 +94,15 @@ void show_voltage_on_leds(uint16_t adc_val)
     // Amplitude
     int i=0;
     for (i=0; i<6; i++){
-        values[i] = og_led_brightness[i];
+        values[5-i] = og_led_brightness[i];
         if (512-ranges[i] < adc_val && adc_val < 512 + ranges[i]) {
             break;
         }
     }
-    for (;i<6;i++){
-        values[i] = 0;
+    if (i!=5){
+        for (;i<6;i++){
+            values[5-i] = 0;
+        }
     }
 
     // LED_PWM_Pass(255, 0, 0, 0, 0, 0);
