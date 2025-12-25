@@ -9,8 +9,18 @@
 
 // #define LED_USE_TIMER2 // For a brighter Purple
 
+void gpio_led_normal_init( void ) {
+    // Configure LEDs as outputs
+    funPinMode(LED_PURPLE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_RED,    GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_ORANGE, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_YELLOW, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_GREEN,  GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+    funPinMode(LED_BLUE,   GPIO_Speed_10MHz | GPIO_CNF_OUT_PP);
+}
+
 //// Timer Setup/ Wrapper
-void gpio_init ( void ) {
+void gpio_pwm_init ( void ) {
     
     // Enable GPIOC, GPIOD and TIM1
     RCC->APB2PCENR |=  RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC |
@@ -176,7 +186,7 @@ void t1pwm_clear(int val){
 // #define LED_BLUE     PC4 // T1CH4, T1CH2N_1 / T1CH4_2 / T1CH1_3
 
 void LED_Init() {
-    gpio_init();
+    gpio_pwm_init();
     t1pwm_init();
     #ifdef LED_USE_TIMER2
         t2pwm_init();
