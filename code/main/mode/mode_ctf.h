@@ -13,7 +13,7 @@ void mode_ctf_btn_buffer_shift(char new_val){
 int mode_ctf_btn_buffer_map(){
     int val = 0;
     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-        if (mode_ctf_btn_buffer == -1) { return -1; } // invalid
+        if (mode_ctf_btn_buffer[i] == -1) { return -1; } // invalid
         val += (mode_ctf_btn_buffer[i]) << i;
     }
     return val;
