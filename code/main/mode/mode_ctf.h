@@ -83,4 +83,6 @@ int mode_ctf_main(){
     flashAllLeds();
     Delay_Ms(1000);
     currentMode = MODE_BLINK;
+
+    return 0;
 }
