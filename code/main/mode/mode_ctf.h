@@ -42,7 +42,7 @@ int mode_ctf_check_and_unlock(){
 int mode_ctf_led_ticks;
 void mode_ctf_led(int yellow, int blue, int ms) {
     mode_ctf_led_ticks = SysTick->CNT;
-    while (SysTick->CNT - mode_ctf_led_ticks < Ticks_from_Ms(ms)) {
+    while (SysTick->CNT - mode_ctf_led_ticks < (uint32_t) Ticks_from_Ms(ms)) {
         LED_PWM_Pass(16, 0, 0, yellow, 0, blue);
     }
 }
