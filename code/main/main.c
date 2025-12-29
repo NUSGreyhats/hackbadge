@@ -63,7 +63,6 @@ int main(void)
 
     // Turn off all LEDs initially (write HIGH for active-low)
     allLedsOff();
-    const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
     // mode_ctf_main();
     printf("Welcome to Hackbadge\n");
