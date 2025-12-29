@@ -29,6 +29,9 @@ all: $(TARGET).bin
 	@mkdir -p $(BUILD_DIR)
 	@mv -f $(TARGET).elf $(TARGET).bin $(TARGET).hex $(TARGET).lst $(TARGET).map $(BUILD_DIR)/ 2>/dev/null || true
 	@echo "Build artifacts moved to $(BUILD_DIR)/"
+
+flash: all
+	sudo $(MINICHLINK) -w $(BUILD_DIR)/$(TARGET).bin 0x08000000 -c 0x1209b003 -b
 	
 # Flash using WCH-Link (removes bootloader)
 # flash: $(TARGET).bin
