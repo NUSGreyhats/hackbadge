@@ -2,7 +2,9 @@
 #include <stdio.h>
 
 #define MODE_CTF_KEYLEN 8
+#define MODE_CTF_PLACEHOLDER 8  // Placeholder val for uninitialized buffer positions (0=left button, 1=right button)
 volatile char mode_ctf_btn_buffer[MODE_CTF_KEYLEN];
+
 void mode_ctf_btn_buffer_shift(char new_val){
     for(int i=MODE_CTF_KEYLEN-1; i>=0; i--){
         mode_ctf_btn_buffer[i+1] = mode_ctf_btn_buffer[i];
@@ -13,7 +15,7 @@ void mode_ctf_btn_buffer_shift(char new_val){
 int mode_ctf_btn_buffer_map(){
     int val = 0;
     for (int i=0; i<MODE_CTF_KEYLEN; i++) {
-        if (mode_ctf_btn_buffer[i] == -1) { return -1; } // invalid
+        if (mode_ctf_btn_buffer[i] == MODE_CTF_PLACEHOLDER) { return -1; } // buffer[i] not yet initialized
         val += (mode_ctf_btn_buffer[i]) << i;
     }
     return val;
@@ -48,8 +50,8 @@ int mode_ctf_main(){
     Interrupt_Btn_Disable();
     led_pwm_gpio_init();
 
-    // Buffer
-    memset(mode_ctf_btn_buffer, 8, MODE_CTF_KEYLEN);
+    // Initialize buffer with placeholder values to prevent accidental early unlocks
+    memset((void*)mode_ctf_btn_buffer, MODE_CTF_PLACEHOLDER, MODE_CTF_KEYLEN);
 
     funDigitalWrite(LED_YELLOW, LED_ON);
     while (1)
