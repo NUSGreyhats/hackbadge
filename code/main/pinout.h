@@ -10,3 +10,5 @@
 
 #define BTN_RIGHT    PD0
 #define BTN_LEFT     PC2
+
+#define MIC PA2

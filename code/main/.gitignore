@@ -1,11 +1,5 @@
-# Build artifacts
-build/
-*.o
-*.elf
 *.bin
+*.elf
 *.hex
 *.lst
 *.map
-
-# Generated linker script
-../env/rv003usb/ch32v003fun/ch32fun/generated__.ld

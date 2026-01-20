@@ -31,7 +31,7 @@ void allLedsOff()
 // Software PWM for one pin
 // brightness: 0..100
 // duration_s: seconds (integer)
-void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_s)
+void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_ms)
 {
     int pin;
 
@@ -39,6 +39,8 @@ void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_s)
     else if (!strcmp(color, "blue"))   pin = LED_BLUE;
     else if (!strcmp(color, "yellow")) pin = LED_YELLOW;
     else if (!strcmp(color, "orange")) pin = LED_ORANGE;
+    else if (!strcmp(color, "red"))    pin = LED_RED;
+    else if (!strcmp(color, "green"))  pin = LED_GREEN;
     else return;
 
     // Turn off all LEDs first
@@ -49,9 +51,7 @@ void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_s)
     }
     if (brightness >= 100) {
         funDigitalWrite(pin, LED_ON);  // Active LOW - write LOW to turn on
-        for (uint32_t t = 0; t < (uint32_t)duration_s * 100; t++) {
-            Delay_Ms(10);
-        }
+        Delay_Ms(duration_ms);
         funDigitalWrite(pin, LED_OFF);
         return;
     }
@@ -63,7 +63,7 @@ void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_s)
     uint8_t on_slices = (brightness * slices) / 100;
 
     // Run for duration_s seconds
-    uint32_t iterations = (duration_s * 1000) / period_ms;
+    uint32_t iterations = duration_ms / period_ms;
     for (uint32_t it = 0; it < iterations; it++)
     {
         for (uint8_t s = 0; s < slices; s++)
