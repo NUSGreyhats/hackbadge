@@ -339,11 +339,11 @@ void nobody_likes_crypto() { // Blink yellow 100% brightness for 50-500ms
     // blinking faster or slower
     if (crypto_state) {
         lightUpLed("yellow", 100, duration_ms);  
-        duration_ms *= 1.1;
+        duration_ms = duration_ms + (duration_ms/10);
     }
     else {
         lightUpLed("yellow", 100, duration_ms);  
-        duration_ms /= 1.1;
+        duration_ms = (duration_ms * 10) / 11;
     }
     Delay_Ms(50);
 }
