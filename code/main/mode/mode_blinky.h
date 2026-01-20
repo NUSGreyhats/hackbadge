@@ -80,7 +80,7 @@ void blinky_fade() {
             values[4] -= max_brightness[4] / 12;
             values[5] -= max_brightness[5] / 64;
 
-            if (values[0] < 0) {
+            if (values[0] <= 0) {
                 blinky_fade_state = 1;
             }
         }
