@@ -20,7 +20,8 @@
 // Modes
 typedef enum {
     MODE_BLINK = 0,
-    MODE_CTF = 1
+    MODE_MIC = 1,
+    MODE_CTF = 2
 } SystemMode;
 static SystemMode currentMode = MODE_BLINK;
 
@@ -32,13 +33,14 @@ void flashAllLeds()
     //funDigitalWrite(LED_PURPLE, LED_ON);
     //funDigitalWrite(LED_BLUE, LED_ON);
     //funDigitalWrite(LED_YELLOW, LED_ON);
-    lightUpLed("blue", 10, 1);
+    lightUpLed("blue", 10, 1000);
     Delay_Ms(1000);
     allLedsOff();
 }
 
 #include "mode/mode_ctf.h"
 #include "mode/mode_blinky.h"
+#include "mode/mode_mic.h"
 
 int main(void)
 {
@@ -62,8 +64,10 @@ int main(void)
     // BadgeState_SetUnlocked
 
     // Turn off all LEDs initially (write HIGH for active-low)
-    allLedsOff();
+    // allLedsOff();
+    const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
+    SetupDebugPrintf();
     // mode_ctf_main();
     printf("Welcome to Hackbadge\n");
     ModeBlinky_Setup();
@@ -80,20 +84,26 @@ int main(void)
         else if (currentMode == MODE_CTF) {
             mode_ctf_main();
         }
+        else if (currentMode == MODE_MIC) {
+            mode_mic_main();
+        }
         
     }
 }
 
-
-
 void Interrupt_BtnLeft(){
-    currentMode = (currentMode == MODE_BLINK) ? MODE_CTF : MODE_BLINK;
+    currentMode = (SystemMode)((currentMode + 1) % 3);
+
+    LED_PWM_Clear();
 
     gpioLedInit();
     flashAllLeds();
     switch (currentMode) {
         case MODE_BLINK:
             ModeBlinky_Setup();
+            break;
+        case MODE_MIC:
+            mode_mic_setup();
             break;
         default:
             gpioLedInit();
