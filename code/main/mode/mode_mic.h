@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 #define ADC_NUMCHLS 1
-    volatile uint16_t adc_buffer[ADC_NUMCHLS];
+volatile uint16_t adc_buffer[ADC_NUMCHLS];
 
 void adc_init_pure_analog(void)
 {
@@ -138,7 +138,7 @@ void mode_mic_setup() {
 }
 
 
-int mode_mic_main() {
+void mode_mic_main() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
 
     if (SysTick->CNT - ticks < Ticks_from_Ms(50)) { // Allows me to keep calling LED PWM
@@ -203,6 +203,6 @@ int mode_mic_main() {
         max_seen = 0;
         sum = 0;
     }
-    return 0;
+    return;
 }
 

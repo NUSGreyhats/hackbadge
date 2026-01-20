@@ -38,8 +38,8 @@ void flashAllLeds()
     allLedsOff();
 }
 
-#include "mode/mode_ctf.h"
 #include "mode/mode_blinky.h"
+#include "mode/mode_ctf.h"
 #include "mode/mode_mic.h"
 
 int main(void)
@@ -64,10 +64,10 @@ int main(void)
     // BadgeState_SetUnlocked
 
     // Turn off all LEDs initially (write HIGH for active-low)
-    // allLedsOff();
+    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
-    SetupDebugPrintf();
+    // SetupDebugPrintf();
     // mode_ctf_main();
     printf("Welcome to Hackbadge\n");
     ModeBlinky_Setup();

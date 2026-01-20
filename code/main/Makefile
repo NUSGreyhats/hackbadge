@@ -6,7 +6,8 @@ TARGET_MCU:=CH32V003
 # Set both variables to the same path
 CH32V003FUN:=../env/rv003usb/ch32v003fun/ch32fun
 CH32FUN:=../env/rv003usb/ch32v003fun/ch32fun
-MINICHLINK:=../env/rv003usb/ch32v003fun/minichlink/minichlink.exe
+MINICHLINK:=../env/rv003usb/ch32v003fun/minichlink/minichlink
+#.exe
 
 # System clock speed
 FUNCONF_SYSTEM_CORE_CLOCK:=24000000

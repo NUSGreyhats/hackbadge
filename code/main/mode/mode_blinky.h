@@ -403,10 +403,12 @@ void runBlinkPattern(uint8_t pattern)
         blinky_firefly();
         break;
     case 6:
-        ping_pong();
+        gpioLedInit();
+        random_sparkle();
+
         break;
     case 7:
-        random_sparkle();
+        ping_pong();
         break;
     case 8:
         nobody_likes_crypto();
@@ -436,6 +438,19 @@ void ModeBlinky_Setup_Pattern(){
         LED_PWM_Clear();
         gpioLedInit();
         allLedsOff();
+        
+        // funDigitalWrite(LED_PURPLE, LED_ON);
+        // funDigitalWrite(LED_RED, LED_ON);
+        // funDigitalWrite(LED_ORANGE, LED_ON);
+        // funDigitalWrite(LED_YELLOW, LED_ON);
+        // funDigitalWrite(LED_GREEN, LED_ON);
+        // funDigitalWrite(LED_BLUE, LED_ON);
+
+        uint32_t ticks = SysTick->CNT;
+        while (SysTick->CNT - ticks < Ticks_from_Ms(1000)) {}
+        
+        allLedsOff();
+        
         my_srand(SysTick->CNT); // seed for random rand() numbers
     };
 
