@@ -299,13 +299,16 @@ const char* led_colors[] = { "purple", "red", "orange", "yellow", "green", "blue
 void random_sparkle() {
     static uint8_t brightness = 2;
     static uint8_t current_led = 5;
-    static int rain_last = -1;
+    static int rain_last = 3;
 
     // If brightness is 0, spawn new drop
     if (brightness == 0) {
         allLedsOff();
-        while (current_led == rain_last && !BadgeState_Unlocked(global_badge_state, current_led)) {
+        while (current_led == rain_last) {
             current_led = my_rand() % 6;
+        }
+        while (!BadgeState_Unlocked(global_badge_state, current_led)) {
+            current_led = (current_led + 1) % 6;
         }
         rain_last = current_led;
         brightness = 2;
@@ -481,7 +484,6 @@ void ModeBlinky_Setup(){
 }
 
 void ModeBlinky_changeMode(){
-    allLedsOff();
     currentBlinkPattern = (currentBlinkPattern + 1) % BLINKY_NUM_MODES;
 
     if (currentBlinkPattern == 8 && !BadgeState_Unlocked(global_badge_state, 6)){
