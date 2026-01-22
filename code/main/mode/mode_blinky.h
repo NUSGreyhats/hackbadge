@@ -76,7 +76,7 @@ void blinky_fade() {
             values[4] += max_brightness[4] / 12;
             values[5] += max_brightness[5] / 64;
 
-            if (values[0] >= max_brightness[0]) {
+            if (values[5] >= max_brightness[5]) {
                 blinky_fade_state = 0;
             }
 
@@ -88,12 +88,12 @@ void blinky_fade() {
             values[4] -= max_brightness[4] / 12;
             values[5] -= max_brightness[5] / 64;
 
-            if (values[0] <= 0) {
+            if (values[5] <= 0) {
                 blinky_fade_state = 1;
             }
         }
         led_gatekeeping();
-
+        printf("%d\n", max_brightness[5]);
         ticks = SysTick->CNT;
     }
 }
@@ -297,7 +297,7 @@ const char* led_colors[] = { "purple", "red", "orange", "yellow", "green", "blue
 void ping_pong() {
     static uint8_t pp_position = 0;
     static uint8_t pp_state = 1;
-    lightUpLed(led_colors[pp_position], 80, 500); // Update every 500ms
+    lightUpLed(led_colors[pp_position], 80, 200); // Update every 500ms
 
     if (pp_state) { pp_position++; }
     else { pp_position--; }
@@ -442,6 +442,9 @@ void ModeBlinky_Setup_Pattern(){
         led_pwm_gpio_init();
         blinky_fade_clear();
         ticks = SysTick->CNT;
+        if (currentBlinkPattern == 2) {
+            counter = 0;
+        }
     }
     else if (currentBlinkPattern == 5) {    
         LED_PWM_Clear();

@@ -17,7 +17,12 @@ void Interrupt_Btn_Configure(){
 	// Configure the IO as an interrupt.
 	AFIO->EXTICR = AFIO_EXTICR1_EXTI2_PC | AFIO_EXTICR1_EXTI0_PD;
 	EXTI->INTENR = EXTI_INTENR_MR2 | EXTI_INTENR_MR0; // Enable EXT0
-	EXTI->RTENR  = EXTI_FTENR_TR2  | EXTI_FTENR_TR0;  // Rising edge trigger
+
+	// EXTI->RTENR  = EXTI_RTENR_TR2  | EXTI_RTENR_TR0;  // Rising edge trigger
+	// EXTI->FTENR  = EXTI_FTENR_TR2  | EXTI_FTENR_TR0;  // Falling edge trigger
+
+	EXTI->RTENR  = EXTI_RTENR_TR0;  // Rising edge trigger
+	EXTI->FTENR  = EXTI_FTENR_TR2;  // Falling edge trigger
 }
 
 void Interrupt_Btn_Enable(){

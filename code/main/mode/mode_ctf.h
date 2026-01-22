@@ -142,5 +142,6 @@ int mode_ctf_main(){
     gpioLedInit();
     flashAllLeds();
     Delay_Ms(1000);
-    currentMode = MODE_MIC;
+    currentMode = MODE_BLINK;
+    ModeBlinky_changeMode();
 }

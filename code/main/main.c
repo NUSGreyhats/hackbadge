@@ -92,10 +92,21 @@ int main(void)
 }
 
 void Interrupt_BtnLeft(){
-    currentMode = (SystemMode)((currentMode + 1) % 3);
+
+    // Debounce (kinda)
+    int wait_ticks = SysTick->CNT;
+    while (SysTick->CNT - wait_ticks < Ticks_from_Ms(200)) {}
+    while (funDigitalRead(BTN_LEFT) == 0) {} //  Holding down
+    int long_press = SysTick->CNT - wait_ticks > Ticks_from_Ms(3000); // Hold for 3 seconds
+
+    currentMode = MODE_CTF;
+    if (long_press){
+        if (currentMode == MODE_BLINK) {currentMode = MODE_MIC;} 
+        else {currentMode = MODE_BLINK;}
+    }
+    // currentMode = (SystemMode)((currentMode + 1) % 3);
 
     LED_PWM_Clear();
-
     gpioLedInit();
     flashAllLeds();
     switch (currentMode) {
