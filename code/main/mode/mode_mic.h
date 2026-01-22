@@ -38,8 +38,8 @@ void adc_init_pure_analog(void)
     ADC1->RSQR2 = 0;
     ADC1->RSQR3 = 0;  // Channel 0
 
-    // Sampling time: 241 cycles (maximum stability)
-    ADC1->SAMPTR2 = (7 << 0);
+    // Sampling time: 61 cycles (good for voice)
+    ADC1->SAMPTR2 = (5 << 0);
 
     // Enable ADC
     ADC1->CTLR2 |= ADC_ADON;
@@ -81,23 +81,23 @@ void show_voltage_on_leds(uint16_t adc_val) {
     // Progressive LED display based on voltage
     // Array is: purple[0], red[1], orange[2], yellow[3], green[4], blue[5]
 
-    if (adc_val >= 200) {
-        values[5] = max_brightness[5];  // Blue - always on above 200
+    if (adc_val >= 5) {
+        values[5] = max_brightness[5];  // Blue - baseline
     }
-    if (adc_val >= 520) {
-        values[4] = max_brightness[4];  // Green - added at 550
+    if (adc_val >= 7) {
+        values[4] = max_brightness[4];  // Green
     }
-    if (adc_val >= 550) {
-        values[3] = max_brightness[3];  // Yellow - added at 600
+    if (adc_val >= 10) {
+        values[3] = max_brightness[3];  // Yellow
     }
-    if (adc_val >= 590) {
-        values[2] = max_brightness[2];  // Orange - added at 650
+    if (adc_val >= 12) {
+        values[2] = max_brightness[2];  // Orange
     }
-    if (adc_val >= 640) {
-        values[1] = max_brightness[1];  // Red - added at 700
+    if (adc_val >= 15) {
+        values[1] = max_brightness[1];  // Red
     }
-    if (adc_val >= 700) {
-        values[0] = max_brightness[0];  // Purple - added at 750
+    if (adc_val >= 25) {
+        values[0] = max_brightness[0];  // Purple
     }
 
     // Update LEDs
@@ -107,9 +107,9 @@ void show_voltage_on_leds(uint16_t adc_val) {
 
 // Mic debugging variables
 static uint32_t sample_num = 0;
-static uint16_t min_seen = 1023;
-static uint16_t max_seen = 0;
-static uint32_t sum = 0;
+static uint32_t display_counter = 0;
+static uint16_t min_value = 1023;
+static uint16_t max_value = 0;
 
 void mode_mic_setup() {
     LED_PWM_Clear();
@@ -127,21 +127,17 @@ void mode_mic_setup() {
     adc_init_pure_analog();
     printf("done.\n\n");
 
-    printf("Sample | ADC Value | Millivolts | LED\n");
-    printf("-------|-----------|------------|-----\n");
-
     // Reset state
     sample_num = 0;
-    min_seen = 1023;
-    max_seen = 0;
-    sum = 0;
+    min_value = 1023;
+    max_value = 0;
 }
 
 
 void mode_mic_main() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
 
-    if (SysTick->CNT - ticks < Ticks_from_Ms(50)) { // Allows me to keep calling LED PWM
+    if (SysTick->CNT - ticks < Ticks_from_Us(500)) { // Allows me to keep calling LED PWM
         return;
     }
     ticks = SysTick->CNT;
@@ -149,59 +145,79 @@ void mode_mic_main() {
     // Read raw ADC value
     uint16_t raw_adc = adc_buffer[0];
 
+    // Update LED
+    // show_voltage_on_leds(raw_adc);
+
     // Convert to millivolts
-    uint16_t mv = (raw_adc * 5000) / 1024;
+    // uint16_t mv = (raw_adc * 5000) / 1024;
 
     // Track statistics
-    if (raw_adc < min_seen) min_seen = raw_adc;
-    if (raw_adc > max_seen) max_seen = raw_adc;
-    sum += raw_adc;
+    // if (raw_adc < min_seen) min_seen = raw_adc;
+    // if (raw_adc > max_seen) max_seen = raw_adc;
+    // sum += raw_adc;
+    // sample_num++;
+
+    // // Determine which LED is lit
+    // char* led_str;
+    // if (raw_adc < 200) {
+    //     led_str = "-";
+    // } else if (raw_adc < 550) {
+    //     led_str = "B";
+    // } else if (raw_adc < 600) {
+    //     led_str = "BG";
+    // } else if (raw_adc < 650) {
+    //     led_str = "BGY";
+    // } else if (raw_adc < 700) {
+    //     led_str = "BGYO";
+    // } else if (raw_adc < 750) {
+    //     led_str = "BGYOR";
+    // } else {
+    //     led_str = "BGYORP";
+    // }
+
+    // // Print every 50ms
+    // printf("%6lu | %4d      | %4d       | %s\n",
+    //     sample_num, raw_adc, mv, led_str);
+
+    // // Print statistics every 10 seconds (200 samples)
+    // if (sample_num % 200 == 0) {
+    //     uint16_t avg = sum / 200;
+    //     uint16_t avg_mv = (avg * 5000) / 1024;
+    //     uint16_t min_mv = (min_seen * 5000) / 1024;
+    //     uint16_t max_mv = (max_seen * 5000) / 1024;
+    //     uint16_t pk_pk = max_seen - min_seen;
+    //     uint16_t pk_pk_mv = (pk_pk * 5000) / 1024;
+
+    //     printf("\n--- Statistics (last 10s) ---\n");
+    //     printf("Average: %4d (%4d mV)\n", avg, avg_mv);
+    //     printf("Min:     %4d (%4d mV)\n", min_seen, min_mv);
+    //     printf("Max:     %4d (%4d mV)\n", max_seen, max_mv);
+    //     printf("Peak-Peak: %4d (%4d mV)\n\n", pk_pk, pk_pk_mv);
+
+    //     // Reset stats
+    //     min_seen = 1023;
+    //     max_seen = 0;
+    //     sum = 0;
+    // }
+    
+    // Continuously update min/max from ADC samples
+    if (raw_adc < min_value) min_value = raw_adc;
+    if (raw_adc > max_value) max_value = raw_adc;
     sample_num++;
+    
+    if (sample_num == 200) {
+        // Print & update every 100ms
+        uint16_t peak_to_peak = max_value - min_value;
+        uint16_t center = (max_value + min_value) / 2;
+        
+        printf("P2P: %4d | Ctr: %4d\n", peak_to_peak, center);
+        
+        show_voltage_on_leds(peak_to_peak);
 
-    // Determine which LED is lit
-    char* led_str;
-    if (raw_adc < 200) {
-        led_str = "-";
-    } else if (raw_adc < 550) {
-        led_str = "B";
-    } else if (raw_adc < 600) {
-        led_str = "BG";
-    } else if (raw_adc < 650) {
-        led_str = "BGY";
-    } else if (raw_adc < 700) {
-        led_str = "BGYO";
-    } else if (raw_adc < 750) {
-        led_str = "BGYOR";
-    } else {
-        led_str = "BGYORP";
-    }
-
-    // Update LED
-    show_voltage_on_leds(raw_adc);
-
-    // Print every 50ms
-    printf("%6lu | %4d      | %4d       | %s\n",
-        sample_num, raw_adc, mv, led_str);
-
-    // Print statistics every 10 seconds (200 samples)
-    if (sample_num % 200 == 0) {
-        uint16_t avg = sum / 200;
-        uint16_t avg_mv = (avg * 5000) / 1024;
-        uint16_t min_mv = (min_seen * 5000) / 1024;
-        uint16_t max_mv = (max_seen * 5000) / 1024;
-        uint16_t pk_pk = max_seen - min_seen;
-        uint16_t pk_pk_mv = (pk_pk * 5000) / 1024;
-
-        printf("\n--- Statistics (last 10s) ---\n");
-        printf("Average: %4d (%4d mV)\n", avg, avg_mv);
-        printf("Min:     %4d (%4d mV)\n", min_seen, min_mv);
-        printf("Max:     %4d (%4d mV)\n", max_seen, max_mv);
-        printf("Peak-Peak: %4d (%4d mV)\n\n", pk_pk, pk_pk_mv);
-
-        // Reset stats
-        min_seen = 1023;
-        max_seen = 0;
-        sum = 0;
+        // Reset tracking
+        min_value = 1023;
+        max_value = 0;
+        sample_num = 0;
     }
     return;
 }
