@@ -99,16 +99,18 @@ void Interrupt_BtnLeft(){
     while (funDigitalRead(BTN_LEFT) == 0) {} //  Holding down
     int long_press = SysTick->CNT - wait_ticks > Ticks_from_Ms(3000); // Hold for 3 seconds
 
-    currentMode = MODE_CTF;
+    
     if (long_press){
         if (currentMode == MODE_BLINK) {currentMode = MODE_MIC;} 
         else {currentMode = MODE_BLINK;}
+    } else {
+        currentMode = MODE_CTF;
     }
     // currentMode = (SystemMode)((currentMode + 1) % 3);
 
-    LED_PWM_Clear();
-    gpioLedInit();
-    flashAllLeds();
+    // LED_PWM_Clear();
+    // gpioLedInit();
+    // flashAllLeds();
     switch (currentMode) {
         case MODE_BLINK:
             ModeBlinky_Setup();
@@ -123,6 +125,10 @@ void Interrupt_BtnLeft(){
 }
 
 void Interrupt_BtnRight(){
+    // Debounce (kinda)
+    int wait_ticks = SysTick->CNT;
+    while (SysTick->CNT - wait_ticks < Ticks_from_Ms(200)) {}
+    
     // Handle BTN2 events - Only in BLINK mode
     if (currentMode == MODE_BLINK) {
         ModeBlinky_changeMode();

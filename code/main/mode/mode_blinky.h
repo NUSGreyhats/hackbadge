@@ -17,6 +17,8 @@ uint32_t my_rand(void) {
     rand_num = rand_num * 1103515245 + 12345;
     return (rand_num / 65536) % 32768;
 }
+void ModeBlinky_changeMode();
+
 
 void check_led_unlocked(int values[]) {
     for (int i = 0; i < 6; i++) {
@@ -294,29 +296,15 @@ void blinky_heartbeat() {
 
 // GPIO blinkies start here
 const char* led_colors[] = { "purple", "red", "orange", "yellow", "green", "blue" };
-void ping_pong() {
-    static uint8_t pp_position = 0;
-    static uint8_t pp_state = 1;
-    lightUpLed(led_colors[pp_position], 80, 200); // Update every 500ms
-
-    if (pp_state) { pp_position++; }
-    else { pp_position--; }
-
-    if (pp_position <= 0) { pp_state = 1; } // Start counting up 
-    else if (pp_position >= 5) { pp_state = 0; }  // Start counting down
-}
-
-
-
 void random_sparkle() {
     static uint8_t brightness = 2;
-    static uint8_t current_led = 0;
+    static uint8_t current_led = 5;
     static int rain_last = -1;
 
     // If brightness is 0, spawn new drop
     if (brightness == 0) {
         allLedsOff();
-        while (current_led == rain_last) {
+        while (current_led == rain_last && !BadgeState_Unlocked(global_badge_state, current_led)) {
             current_led = my_rand() % 6;
         }
         rain_last = current_led;
@@ -363,6 +351,19 @@ void nobody_likes_crypto() { // Blink yellow 100% brightness for 50-500ms
     }
     Delay_Ms(50);
 }
+
+void ping_pong() {
+    static uint8_t pp_position = 0;
+    static uint8_t pp_state = 1;
+    lightUpLed(led_colors[pp_position], 80, 200); // Update every 500ms
+
+    if (pp_state) { pp_position++; }
+    else { pp_position--; }
+
+    if (pp_position <= 0) { pp_state = 1; } // Start counting up 
+    else if (pp_position >= 5) { pp_state = 0; }  // Start counting down
+}
+
 
 // Display counter in binary (bit 0 = purple, bit 1 = red, ..., bit 5 = blue), 200ms tick
 void binary_counter() {
@@ -420,14 +421,13 @@ void runBlinkPattern(uint8_t pattern)
         break;
     case 6:
         gpioLedInit();
-        random_sparkle();
-
+        nobody_likes_crypto();
         break;
     case 7:
-        ping_pong();
+        random_sparkle();
         break;
     case 8:
-        nobody_likes_crypto();
+        ping_pong();
         break;
     case 9:
         binary_counter();
@@ -476,10 +476,19 @@ void ModeBlinky_Setup_Pattern(){
 }
 
 void ModeBlinky_Setup(){
+    currentBlinkPattern = 0;
     ModeBlinky_Setup_Pattern();
 }
 
 void ModeBlinky_changeMode(){
+    allLedsOff();
     currentBlinkPattern = (currentBlinkPattern + 1) % BLINKY_NUM_MODES;
+
+    if (currentBlinkPattern == 8 && !BadgeState_Unlocked(global_badge_state, 6)){
+        currentBlinkPattern = 9;
+    }
+    if (currentBlinkPattern == 9 && !BadgeState_Unlocked(global_badge_state, 7)){
+        currentBlinkPattern = 0;
+    }
     ModeBlinky_Setup_Pattern();
 }

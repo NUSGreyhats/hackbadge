@@ -91,6 +91,16 @@ int mode_ctf_check_and_unlock(){
         BadgeState_Write(global_badge_state);
         return 1;
     }
+    if (val == 0b111111001111) {
+        global_badge_state.unlock_status |= 0b1000000; // Extra 1
+        BadgeState_Write(global_badge_state);
+        return 1;
+    }
+    if (val == 0b11011100111) {
+        global_badge_state.unlock_status |= 0b10000000; // Extra 2
+        BadgeState_Write(global_badge_state);
+        return 1;
+    }
 
     return 0;
 } 
