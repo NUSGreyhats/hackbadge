@@ -356,6 +356,11 @@ void nobody_likes_crypto() { // Blink yellow 100% brightness for 50-500ms
 }
 
 void ping_pong() {
+    if (!BadgeState_Unlocked(global_badge_state, 6)){
+        ModeBlinky_changeMode();
+        return;
+    }
+
     static uint8_t pp_position = 0;
     static uint8_t pp_state = 1;
     lightUpLed(led_colors[pp_position], 80, 200); // Update every 500ms
@@ -370,6 +375,11 @@ void ping_pong() {
 
 // Display counter in binary (bit 0 = purple, bit 1 = red, ..., bit 5 = blue), 200ms tick
 void binary_counter() {
+    if (!BadgeState_Unlocked(global_badge_state, 7)){
+        ModeBlinky_changeMode();
+        return;
+    }
+
     static int counter = 0;
     static int counter_state = 0;
 
@@ -486,11 +496,11 @@ void ModeBlinky_Setup(){
 void ModeBlinky_changeMode(){
     currentBlinkPattern = (currentBlinkPattern + 1) % BLINKY_NUM_MODES;
 
-    if (currentBlinkPattern == 8 && !BadgeState_Unlocked(global_badge_state, 6)){
-        currentBlinkPattern = 9;
-    }
-    if (currentBlinkPattern == 9 && !BadgeState_Unlocked(global_badge_state, 7)){
-        currentBlinkPattern = 0;
-    }
+    // if (currentBlinkPattern == 8 && !BadgeState_Unlocked(global_badge_state, 6)){
+    //     currentBlinkPattern = 9;
+    // }
+    // if (currentBlinkPattern == 9 && !BadgeState_Unlocked(global_badge_state, 7)){
+    //     currentBlinkPattern = 0;
+    // }
     ModeBlinky_Setup_Pattern();
 }
