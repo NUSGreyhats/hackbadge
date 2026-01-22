@@ -31,6 +31,14 @@ int max_brightness[] = {128, 128, 128, 256, 12, 128}; // purple red orange yello
 int values[] = {64, 0, 0, 0, 0, 0}; // current brightness
 uint32_t ticks;
 
+void led_gatekeeping(){
+    for (int i=0; i< 6; i++){
+        if (!BadgeState_Unlocked(global_badge_state, i)){
+            values[i] = 0;
+        }
+    }
+}
+
 // Timer PWM LEDs start here
 void blinky_cycle() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
@@ -84,6 +92,7 @@ void blinky_fade() {
                 blinky_fade_state = 1;
             }
         }
+        led_gatekeeping();
 
         ticks = SysTick->CNT;
     }
@@ -98,8 +107,10 @@ void blinky_pile() {
             counter = 6;
         } else {
             values[counter] = max_brightness[counter];
+            led_gatekeeping();
         }
         
+        led_gatekeeping();
         ticks = SysTick->CNT;
     }
 }
@@ -132,6 +143,7 @@ void blinky_wave() {
             values[i] = 0;  // Off
         }
     }
+    led_gatekeeping();
 
     // Display the wave
     check_led_unlocked(values);
@@ -209,6 +221,7 @@ void blinky_firefly() {
             values[i] = fireflies[i].current_brightness;
         }
     }
+    led_gatekeeping();
 }
 
 void blinky_heartbeat() {
@@ -260,6 +273,7 @@ void blinky_heartbeat() {
             }
         }
     }
+    led_gatekeeping();
 
     // 260-800ms all off
 
@@ -291,6 +305,8 @@ void ping_pong() {
     if (pp_position <= 0) { pp_state = 1; } // Start counting up 
     else if (pp_position >= 5) { pp_state = 0; }  // Start counting down
 }
+
+
 
 void random_sparkle() {
     static uint8_t brightness = 2;
