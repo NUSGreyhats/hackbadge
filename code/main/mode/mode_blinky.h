@@ -3,6 +3,7 @@
 static uint8_t blinkingEnabled = 1;
 static uint8_t currentBlinkPattern = 0;
 
+#define SPEED_DIV_FACTOR 2 // Speed slowdown into account
 #define BLINKY_NUM_MODES 10
 
 // for random numbers
@@ -44,7 +45,7 @@ void led_gatekeeping(){
 // Timer PWM LEDs start here
 void blinky_cycle() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
-    if (SysTick->CNT - ticks > Ticks_from_Ms(200)) {
+    if (SysTick->CNT - ticks > Ticks_from_Ms(300/SPEED_DIV_FACTOR)) {
         values[counter] = 0;
         counter = (6 + counter - 1) % 6;
         
@@ -69,7 +70,7 @@ void blinky_fade_clear() {
 }
 void blinky_fade() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
-    if (SysTick->CNT - ticks > Ticks_from_Ms(50)) {
+    if (SysTick->CNT - ticks > Ticks_from_Ms(50/SPEED_DIV_FACTOR)) {
         if (blinky_fade_state){
             values[0] += max_brightness[0] / 64;
             values[1] += max_brightness[1] / 64;
@@ -102,7 +103,7 @@ void blinky_fade() {
 
 void blinky_pile() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
-    if (SysTick->CNT - ticks > Ticks_from_Ms(200)) {
+    if (SysTick->CNT - ticks > Ticks_from_Ms(300/SPEED_DIV_FACTOR)) {
         counter--;
         if (counter < 0) {
             blinky_fade_clear();
@@ -151,7 +152,7 @@ void blinky_wave() {
     check_led_unlocked(values);
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
 
-    if (SysTick->CNT - ticks > Ticks_from_Ms(250)) { // move every 250ms
+    if (SysTick->CNT - ticks > Ticks_from_Ms(250/SPEED_DIV_FACTOR)) { // move every 250ms
         wave_position++;
         if (wave_position >= 6) {
             wave_position = 0;  // Loop back to purple
@@ -174,7 +175,7 @@ void blinky_firefly_init() {
     for (int i = 0; i < 6; i++) {
         fireflies[i].current_brightness = 0;
         fireflies[i].state = FIREFLY_OFF;
-        fireflies[i].wait_until = SysTick->CNT + Ticks_from_Ms(my_rand() % 3000); // Stagger initial delays, up to 3s
+        fireflies[i].wait_until = SysTick->CNT + Ticks_from_Ms((my_rand() % 3000)/SPEED_DIV_FACTOR); // Stagger initial delays, up to 3s
     }
 }
 
@@ -182,7 +183,7 @@ void blinky_firefly() {
     uint32_t current_tick = SysTick->CNT;
     check_led_unlocked(values);
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
-    if (current_tick - ticks > Ticks_from_Ms(100)) { // 100 ms delay, handle each firefly separately
+    if (current_tick - ticks > Ticks_from_Ms(100/SPEED_DIV_FACTOR)) { // 100 ms delay, handle each firefly separately
         ticks = current_tick;
 
         for (int i = 0; i < 6; i++) {
@@ -212,7 +213,7 @@ void blinky_firefly() {
                 if (fireflies[i].current_brightness <= 0) {
                     fireflies[i].current_brightness = 0;
                     fireflies[i].state = FIREFLY_OFF;
-                    fireflies[i].wait_until = current_tick + Ticks_from_Ms(1000 + (my_rand() % 4000)); // 1-5 seconds before glowing again
+                    fireflies[i].wait_until = current_tick + Ticks_from_Ms((1000 + (my_rand() % 4000))/SPEED_DIV_FACTOR); // 1-5 seconds before glowing again
                 }
                 break;
             }
@@ -284,7 +285,7 @@ void blinky_heartbeat() {
     LED_PWM_Pass(values[0], values[1], values[2], values[3], values[4], values[5]);
 
     // Update phase every 10ms
-    if (SysTick->CNT - ticks > Ticks_from_Ms(10)) {
+    if (SysTick->CNT - ticks > Ticks_from_Ms(10/SPEED_DIV_FACTOR)) {
         beat_phase += 4;
         if (beat_phase >= 800) {
             beat_phase = 0;  // Reset cycle
@@ -318,7 +319,7 @@ void random_sparkle() {
     uint8_t percent = (brightness > 100) ? 100 : (brightness * 100) / 256;
 
     // Display current brightness using GPIO PWM
-    lightUpLed(led_colors[current_led], percent, 200); // Update every 200ms
+    lightUpLed(led_colors[current_led], percent, 200/SPEED_DIV_FACTOR); // Update every 200ms
 
     // Exponentially increase brightness
     if (brightness >= 256) {
@@ -479,7 +480,7 @@ void ModeBlinky_Setup_Pattern(){
         // funDigitalWrite(LED_BLUE, LED_ON);
 
         uint32_t ticks = SysTick->CNT;
-        while (SysTick->CNT - ticks < Ticks_from_Ms(1000)) {}
+        while (SysTick->CNT - ticks < Ticks_from_Ms(1000/SPEED_DIV_FACTOR)) {}
         
         allLedsOff();
         

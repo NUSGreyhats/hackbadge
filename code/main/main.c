@@ -88,7 +88,7 @@ int main(void)
 	PWR->AWUPSC |= PWR_AWU_Prescaler_4096;
 	// configure AWU window comparison value
 	PWR->AWUWR &= ~0x3f;
-	PWR->AWUWR |= 63;
+	PWR->AWUWR |=   1; // immediately wake up
 	// enable AWU
 	PWR->AWUCSR |= (1 << 1);
 	// select standby on power-down
