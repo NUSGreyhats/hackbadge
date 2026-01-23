@@ -8,9 +8,6 @@ typedef struct {
     uint8_t long_press_triggered;
 } ButtonState;
 
-static ButtonState btn1 = { 0 };
-static ButtonState btn2 = { 0 };
-
 // Helper: active-low buttons; returns 1 if pressed
 static uint8_t readButton(int pin)
 {

@@ -42,7 +42,7 @@ void flashAllLeds()
     //funDigitalWrite(LED_PURPLE, LED_ON);
     //funDigitalWrite(LED_BLUE, LED_ON);
     //funDigitalWrite(LED_YELLOW, LED_ON);
-    lightUpLed("blue", 10, 1000);
+    lightUpLed('B', 10, 1000);
     Delay_Ms(1000);
     allLedsOff();
 }

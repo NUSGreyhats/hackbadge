@@ -112,7 +112,7 @@ void mode_ctf_led(int yellow, int blue, int ms) {
         LED_PWM_Pass(16, 0, 0, yellow, 0, blue);
     }
 }
-int mode_ctf_main(){
+void mode_ctf_main(){
     Interrupt_Btn_Disable();
     led_pwm_gpio_init();
 
