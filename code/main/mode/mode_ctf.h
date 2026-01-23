@@ -21,7 +21,7 @@ int mode_ctf_btn_buffer_map(){ // bit representation of buffer into decimal
 
 int mode_ctf_check_and_unlock(){
     int val = mode_ctf_btn_buffer_map();
-    printf("%d: %d %d %d\n", val, mode_ctf_btn_buffer[0], mode_ctf_btn_buffer[1], mode_ctf_btn_buffer[2]);
+    debug_print("%d: %d %d %d\n", val, mode_ctf_btn_buffer[0], mode_ctf_btn_buffer[1], mode_ctf_btn_buffer[2]);
 
     // badge state looks like blue green yellow orange red purple
     if (val == 0b110010101001){

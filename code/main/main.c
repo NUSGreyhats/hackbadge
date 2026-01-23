@@ -2,6 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 
+void debug_print(const char* format, ...) {
+    #if FUNCONF_USE_DEBUGPRINTF
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+    #endif
+}
+
 #include "pinout.h"  
 #include "led_timers.h"
 #include "led_gpio.h"
@@ -67,9 +76,8 @@ int main(void)
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
-    // SetupDebugPrintf();
     // mode_ctf_main();
-    printf("Welcome to Hackbadge\n");
+    debug_print("Welcome to Hackbadge\n");
     ModeBlinky_Setup();
     while (1)
     {

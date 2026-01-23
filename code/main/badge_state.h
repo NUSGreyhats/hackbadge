@@ -15,10 +15,10 @@ void Flash_Unlock(){
 	FLASH->MODEKEYR = FLASH_KEY1;
 	FLASH->MODEKEYR = FLASH_KEY2;
 
-    printf( "FLASH->CTLR = %08lx\n", FLASH->CTLR );
+    debug_print( "FLASH->CTLR = %08lx\n", FLASH->CTLR );
 	if( FLASH->CTLR & 0x8080 ) 
 	{
-		printf( "Flash still locked\n" );
+		debug_print( "Flash still locked\n" );
 		while(1);
 	}
 }
@@ -39,10 +39,10 @@ void Flash_Erase(uint32_t* ptr){
 	while( FLASH->STATR & FLASH_STATR_BSY );  // Takes about 3ms.
 	stop = SysTick->CNT;
 
-	printf( "FLASH->STATR = %08lx -> %d cycles for page erase\n", FLASH->STATR, stop - start );
-	printf( "Erase complete\n" );
+	debug_print( "FLASH->STATR = %08lx -> %d cycles for page erase\n", FLASH->STATR, stop - start );
+	debug_print( "Erase complete\n" );
     if( ptr[0] != 0xffffffff ) {
-		printf( "WARNING/FAILURE: Flash general erasure failed\n" );
+		debug_print( "WARNING/FAILURE: Flash general erasure failed\n" );
 	}
 }
 
@@ -59,7 +59,7 @@ void Flash_Write(uint32_t* ptr, uint32_t* copy_data, int len){
 	start = SysTick->CNT;
 	while( FLASH->STATR & FLASH_STATR_BSY );  // No real need for this.
 	stop = SysTick->CNT;
-	printf( "FLASH->STATR = %08lx -> %d cycles for buffer reset\n", FLASH->STATR, stop - start );
+	debug_print( "FLASH->STATR = %08lx -> %d cycles for buffer reset\n", FLASH->STATR, stop - start );
 
     int i;
 	start = SysTick->CNT;
@@ -67,12 +67,12 @@ void Flash_Write(uint32_t* ptr, uint32_t* copy_data, int len){
 	{
 		// ptr[i] = 0xabcd1234 + i; //Write to the memory
         ptr[i] = copy_data[i]; //Write to the memory
-		printf( "%08lx(%d) ", copy_data[i], i);
+		debug_print( "%08lx(%d) ", copy_data[i], i);
 		FLASH->CTLR = CR_PAGE_PG | FLASH_CTLR_BUF_LOAD; // Load the buffer.
 		while( FLASH->STATR & FLASH_STATR_BSY );  // Only needed if running from RAM.
 	}
 	stop = SysTick->CNT;
-	printf( "\nWrite: %d cycles for writing data in\n", stop - start );
+	debug_print( "\nWrite: %d cycles for writing data in\n", stop - start );
 
 	// Actually write the flash out. (Takes about 3ms)
 	FLASH->CTLR = CR_PAGE_PG|CR_STRT_Set;
@@ -80,7 +80,7 @@ void Flash_Write(uint32_t* ptr, uint32_t* copy_data, int len){
 	start = SysTick->CNT;
 	while( FLASH->STATR & FLASH_STATR_BSY );
 	stop = SysTick->CNT;
-	printf( "FLASH->STATR = %08lx -> %d cycles for page write\n", FLASH->STATR, stop - start );
+	debug_print( "FLASH->STATR = %08lx -> %d cycles for page write\n", FLASH->STATR, stop - start );
 }
 
 /// State Helpers ////////////////////////////////////////////////////////////

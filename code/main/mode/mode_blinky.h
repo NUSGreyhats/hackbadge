@@ -95,7 +95,7 @@ void blinky_fade() {
             }
         }
         led_gatekeeping();
-        printf("%d\n", max_brightness[5]);
+        debug_print("%d\n", max_brightness[5]);
         ticks = SysTick->CNT;
     }
 }

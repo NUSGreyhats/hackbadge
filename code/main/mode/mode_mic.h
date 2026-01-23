@@ -118,14 +118,14 @@ void mode_mic_setup() {
     ticks = SysTick->CNT; 
     Delay_Ms(100);
 
-    printf("\r\n\r\n=== RAW ADC MONITOR ===\n");
-    printf("No baseline tracking, no deviation calc\n");
-    printf("Pure voltage readings from PA2\n\n");
+    debug_print("\r\n\r\n=== RAW ADC MONITOR ===\n");
+    debug_print("No baseline tracking, no deviation calc\n");
+    debug_print("Pure voltage readings from PA2\n\n");
 
     // Init ADC with pure analog input
-    printf("Configuring PA2 as pure analog (no pull-up/down)...");
+    debug_print("Configuring PA2 as pure analog (no pull-up/down)...");
     adc_init_pure_analog();
-    printf("done.\n\n");
+    debug_print("done.\n\n");
 
     // Reset state
     sample_num = 0;
@@ -176,7 +176,7 @@ void mode_mic_main() {
     // }
 
     // // Print every 50ms
-    // printf("%6lu | %4d      | %4d       | %s\n",
+    // debug_print("%6lu | %4d      | %4d       | %s\n",
     //     sample_num, raw_adc, mv, led_str);
 
     // // Print statistics every 10 seconds (200 samples)
@@ -188,11 +188,11 @@ void mode_mic_main() {
     //     uint16_t pk_pk = max_seen - min_seen;
     //     uint16_t pk_pk_mv = (pk_pk * 5000) / 1024;
 
-    //     printf("\n--- Statistics (last 10s) ---\n");
-    //     printf("Average: %4d (%4d mV)\n", avg, avg_mv);
-    //     printf("Min:     %4d (%4d mV)\n", min_seen, min_mv);
-    //     printf("Max:     %4d (%4d mV)\n", max_seen, max_mv);
-    //     printf("Peak-Peak: %4d (%4d mV)\n\n", pk_pk, pk_pk_mv);
+    //     debug_print("\n--- Statistics (last 10s) ---\n");
+    //     debug_print("Average: %4d (%4d mV)\n", avg, avg_mv);
+    //     debug_print("Min:     %4d (%4d mV)\n", min_seen, min_mv);
+    //     debug_print("Max:     %4d (%4d mV)\n", max_seen, max_mv);
+    //     debug_print("Peak-Peak: %4d (%4d mV)\n\n", pk_pk, pk_pk_mv);
 
     //     // Reset stats
     //     min_seen = 1023;
@@ -210,7 +210,7 @@ void mode_mic_main() {
         uint16_t peak_to_peak = max_value - min_value;
         uint16_t center = (max_value + min_value) / 2;
         
-        printf("P2P: %4d | Ctr: %4d\n", peak_to_peak, center);
+        debug_print("P2P: %4d | Ctr: %4d\n", peak_to_peak, center);
         
         show_voltage_on_leds(peak_to_peak);
 
