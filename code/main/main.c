@@ -76,11 +76,38 @@ int main(void)
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     const uint16_t LOOP_DELAY_MS = 50; // Poll buttons every 50ms
 
+	// enable power interface module clock
+	RCC->APB1PCENR |= RCC_APB1Periph_PWR;
+	// enable low speed oscillator (LSI)
+	RCC->RSTSCKR |= RCC_LSION;
+	while ((RCC->RSTSCKR & RCC_LSIRDY) == 0) {}
+	// enable AutoWakeUp event
+	EXTI->EVENR |= EXTI_Line9;
+	EXTI->FTENR |= EXTI_Line9;
+	// configure AWU prescaler
+	PWR->AWUPSC |= PWR_AWU_Prescaler_4096;
+	// configure AWU window comparison value
+	PWR->AWUWR &= ~0x3f;
+	PWR->AWUWR |= 63;
+	// enable AWU
+	PWR->AWUCSR |= (1 << 1);
+	// select standby on power-down
+	PWR->CTLR |= PWR_CTLR_PDDS;
+	// peripheral interrupt controller send to deep sleep
+	PFIC->SCTLR |= (1 << 2);
+
     // mode_ctf_main();
     debug_print("Welcome to Hackbadge\n");
     ModeBlinky_Setup();
+
+    
+    __WFE();
+    // SystemInit();
+
     while (1)
     {
+        
+		
         // // Update button states
         // uint8_t btn1_event = updateButton(BTN1, &btn1, LOOP_DELAY_MS);
         // uint8_t btn2_event = updateButton(BTN2, &btn2, LOOP_DELAY_MS);
