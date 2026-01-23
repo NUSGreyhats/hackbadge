@@ -1,6 +1,4 @@
 #include "ch32fun.h"
-#include <string.h>
-
 #include "pinout.h"  
 
 void gpioLedInit( void ) {
@@ -31,16 +29,16 @@ void allLedsOff()
 // Software PWM for one pin
 // brightness: 0..100
 // duration_s: seconds (integer)
-void lightUpLed(const char* color, uint8_t brightness, uint16_t duration_ms)
+void lightUpLed(char color, uint8_t brightness, uint16_t duration_ms)
 {
     int pin;
 
-    if (!strcmp(color, "purple"))      pin = LED_PURPLE;
-    else if (!strcmp(color, "blue"))   pin = LED_BLUE;
-    else if (!strcmp(color, "yellow")) pin = LED_YELLOW;
-    else if (!strcmp(color, "orange")) pin = LED_ORANGE;
-    else if (!strcmp(color, "red"))    pin = LED_RED;
-    else if (!strcmp(color, "green"))  pin = LED_GREEN;
+    if (color == 'P')           pin = LED_PURPLE;
+    else if (color == 'B')   pin = LED_BLUE;
+    else if (color == 'Y') pin = LED_YELLOW;
+    else if (color == 'O') pin = LED_ORANGE;
+    else if (color == 'R')    pin = LED_RED;
+    else if (color == 'G')  pin = LED_GREEN;
     else return;
 
     // Turn off all LEDs first

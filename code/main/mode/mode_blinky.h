@@ -295,7 +295,7 @@ void blinky_heartbeat() {
 
 
 // GPIO blinkies start here
-const char* led_colors[] = { "purple", "red", "orange", "yellow", "green", "blue" };
+const char led_colors[] = { 'P', 'R', 'O', 'Y', 'G', 'B' };
 void random_sparkle() {
     static uint8_t brightness = 2;
     static uint8_t current_led = 5;
@@ -345,11 +345,11 @@ void nobody_likes_crypto() { // Blink yellow 100% brightness for 50-500ms
 
     // blinking faster or slower
     if (crypto_state) {
-        lightUpLed("yellow", 100, duration_ms);  
+        lightUpLed('Y', 100, duration_ms);  
         duration_ms = duration_ms + (duration_ms/10);
     }
     else {
-        lightUpLed("yellow", 100, duration_ms);  
+        lightUpLed('Y', 100, duration_ms);  
         duration_ms = (duration_ms * 10) / 11;
     }
     Delay_Ms(50);
