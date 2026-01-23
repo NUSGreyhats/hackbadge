@@ -107,7 +107,6 @@ void show_voltage_on_leds(uint16_t adc_val) {
 
 // Mic debugging variables
 static uint32_t sample_num = 0;
-static uint32_t display_counter = 0;
 static uint16_t min_value = 1023;
 static uint16_t max_value = 0;
 
